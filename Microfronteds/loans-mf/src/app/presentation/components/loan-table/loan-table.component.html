@@ -1,0 +1,65 @@
+<div class="table-container">
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando préstamos...</p>
+    </div>
+  } @else if (hasLoans()) {
+    <table>
+      <thead>
+        <tr>
+          @for (col of columns(); track col.key) {
+            <th [style.width]="col.width">{{ col.header }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (loan of loans(); track trackById($index, loan)) {
+          <tr>
+            <td>{{ loan.id }}</td>
+            <td>{{ loan.bookId }}</td>
+            <td>{{ loan.userId }}</td>
+            <td>{{ formatDate(loan.loanDate) }}</td>
+            <td>{{ formatDate(loan.returnDate) }}</td>
+            <td>
+              <span class="status-badge" [class]="getStatusClass(loan)">
+                {{ loan.statusIcon }} {{ loan.statusLabel }}
+              </span>
+            </td>
+            <td>
+              <div class="table-actions">
+                <button
+                  class="action-btn view-btn"
+                  (click)="onViewDetail(loan, $event)"
+                  title="Ver detalle"
+                  type="button">
+                  👁
+                </button>
+                <button
+                  class="action-btn edit-btn"
+                  (click)="onEdit(loan, $event)"
+                  title="Editar"
+                  type="button">
+                  ✏️
+                </button>
+                <button
+                  class="action-btn delete-btn"
+                  (click)="onDelete(loan, $event)"
+                  title="Eliminar"
+                  type="button">
+                  🗑
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <div class="empty-state">
+      <span class="empty-icon">{{ emptyIcon() }}</span>
+      <h3>Sin préstamos</h3>
+      <p>{{ emptyMessage() }}</p>
+    </div>
+  }
+</div>
