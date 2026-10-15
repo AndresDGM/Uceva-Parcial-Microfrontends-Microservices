@@ -1,0 +1,221 @@
+<div class="library-page">
+  <section class="hero">
+    <div class="hero-content">
+      <span class="eyebrow">BIBLIOTECA UNIVERSITARIA</span>
+
+      <h1>Gestión de usuarios</h1>
+
+      <p>
+        Administra y consulta los usuarios registrados en el sistema
+        de biblioteca.
+      </p>
+    </div>
+
+    <div class="hero-decoration" aria-hidden="true">
+      <span>📚</span>
+    </div>
+  </section>
+
+  @if (errorMessage) {
+    <div class="alert alert-error" role="alert">
+      <span class="alert-icon">!</span>
+      <span>{{ errorMessage }}</span>
+    </div>
+  }
+
+  @if (successMessage) {
+    <div class="alert alert-success" role="alert">
+      <span class="alert-icon">✓</span>
+      <span>{{ successMessage }}</span>
+    </div>
+  }
+
+  <section class="library-card search-card">
+    <div class="card-heading">
+      <div class="heading-icon">⌕</div>
+
+      <div>
+        <span class="section-label">CONSULTA</span>
+        <h2>Buscar un usuario</h2>
+        <p>Consulta la información de un usuario mediante su identificador.</p>
+      </div>
+    </div>
+
+    <form [formGroup]="searchForm" (ngSubmit)="searchUser()">
+      <div class="search-form">
+        <div class="field">
+          <label for="user-id">ID del usuario</label>
+
+          <input
+            id="user-id"
+            type="text"
+            formControlName="id"
+            placeholder="Ej. 1"
+          />
+        </div>
+
+        <button class="primary-button" type="submit">
+          Buscar usuario
+        </button>
+      </div>
+    </form>
+
+    @if (selectedUser) {
+      <div class="user-result">
+        <div class="result-header">
+          <div class="avatar">
+            {{ selectedUser.name.charAt(0) }}
+          </div>
+
+          <div>
+            <span class="section-label">USUARIO ENCONTRADO</span>
+            <h3>
+              {{ selectedUser.name }} {{ selectedUser.lastName }}
+            </h3>
+          </div>
+        </div>
+
+        <div class="user-details">
+          <div>
+            <span>ID</span>
+            <strong>{{ selectedUser.id }}</strong>
+          </div>
+
+          <div>
+            <span>Edad</span>
+            <strong>{{ selectedUser.age }} años</strong>
+          </div>
+
+          <div>
+            <span>Email</span>
+            <strong>{{ selectedUser.email }}</strong>
+          </div>
+
+          <div>
+            <span>Ingeniería</span>
+            <strong>{{ selectedUser.engineering }}</strong>
+          </div>
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="library-card">
+    <div class="card-heading">
+      <div class="heading-icon">✦</div>
+
+      <div>
+        <span class="section-label">REGISTRO</span>
+        <h2>Registrar nuevo usuario</h2>
+        <p>Agrega un nuevo miembro al sistema de biblioteca.</p>
+      </div>
+    </div>
+
+    <form [formGroup]="createForm" (ngSubmit)="submitUser()">
+      <div class="form-grid">
+        <div class="field">
+          <label for="name">Nombre</label>
+          <input id="name" type="text" formControlName="name" />
+        </div>
+
+        <div class="field">
+          <label for="lastName">Apellido</label>
+          <input id="lastName" type="text" formControlName="lastName" />
+        </div>
+
+        <div class="field small-field">
+          <label for="age">Edad</label>
+          <input id="age" type="number" formControlName="age" />
+        </div>
+
+        <div class="field">
+          <label for="email">Correo electrónico</label>
+          <input id="email" type="email" formControlName="email" />
+        </div>
+
+        <div class="field">
+          <label for="engineering">Ingeniería</label>
+          <input id="engineering" type="text" formControlName="engineering" />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="primary-button" type="submit">
+          Registrar usuario
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="library-card catalog-card">
+    <div class="catalog-header">
+      <div>
+        <span class="section-label">CATÁLOGO</span>
+        <h2>Usuarios registrados</h2>
+        <p>Personas actualmente registradas en el sistema.</p>
+      </div>
+
+      <button
+        class="secondary-button"
+        type="button"
+        (click)="loadUsers()"
+      >
+        ↻ Actualizar
+      </button>
+    </div>
+
+    @if (users.length > 0) {
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Usuario</th>
+              <th>Edad</th>
+              <th>Correo electrónico</th>
+              <th>Ingeniería</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (user of users; track user.id) {
+              <tr>
+                <td>
+                  <span class="user-id">#{{ user.id }}</span>
+                </td>
+
+                <td>
+                  <div class="table-user">
+                    <div class="mini-avatar">
+                      {{ user.name.charAt(0) }}
+                    </div>
+
+                    <span>
+                      {{ user.name }} {{ user.lastName }}
+                    </span>
+                  </div>
+                </td>
+
+                <td>{{ user.age }}</td>
+
+                <td>{{ user.email }}</td>
+
+                <td>
+                  <span class="engineering-badge">
+                    {{ user.engineering }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="empty-state">
+        <span class="empty-icon">📖</span>
+        <h3>No hay usuarios registrados</h3>
+        <p>Los usuarios creados aparecerán aquí.</p>
+      </div>
+    }
+  </section>
+</div>
