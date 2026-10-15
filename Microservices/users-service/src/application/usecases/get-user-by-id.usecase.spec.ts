@@ -14,8 +14,9 @@ describe("GetUserByIdUseCase", () => {
     };
 
     const repository: UserRepository = {
-      getAll: jest.fn(),
-      getById: jest.fn().mockResolvedValue(user),
+        getAll: jest.fn(),
+        getById: jest.fn().mockResolvedValue(user),
+        create: jest.fn(),
     };
 
     const useCase = new GetUserByIdUseCase(repository);
@@ -29,8 +30,9 @@ describe("GetUserByIdUseCase", () => {
 
   it("debe retornar null cuando el usuario no existe", async () => {
     const repository: UserRepository = {
-      getAll: jest.fn(),
-      getById: jest.fn().mockResolvedValue(null),
+        getAll: jest.fn(),
+        getById: jest.fn().mockResolvedValue(null),
+        create: jest.fn(),
     };
 
     const useCase = new GetUserByIdUseCase(repository);

@@ -1,11 +1,13 @@
 import { Request, Response } from "express";
 import { GetAllUsersUseCase } from "../../../application/usecases/get-all-users.usecase";
 import { GetUserByIdUseCase } from "../../../application/usecases/get-user-by-id.usecase";
+import { CreateUserUseCase } from "../../../application/usecases/create-user.usecase";
 
 export class UserController {
   constructor(
     private readonly getAllUsersUseCase: GetAllUsersUseCase,
     private readonly getUserByIdUseCase: GetUserByIdUseCase,
+    private readonly createUserUseCase: CreateUserUseCase,
   ) {}
 
   getAll = async (_req: Request, res: Response): Promise<void> => {
@@ -34,5 +36,11 @@ export class UserController {
   }
 
   res.status(200).json(user);
+  };
+
+  create = async (req: Request, res: Response): Promise<void> => {
+  const user = await this.createUserUseCase.execute(req.body);
+
+  res.status(201).json(user);
   };
 }

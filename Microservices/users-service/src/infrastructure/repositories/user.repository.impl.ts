@@ -14,4 +14,8 @@ export class UserRepositoryImpl extends UserRepository {
   override getById(id: string): Promise<User | null> {
     return this.dataSource.getById(id);
   }
+
+  override create(user: Omit<User, "id">): Promise<User> {
+    return this.dataSource.create(user);
+  }
 }

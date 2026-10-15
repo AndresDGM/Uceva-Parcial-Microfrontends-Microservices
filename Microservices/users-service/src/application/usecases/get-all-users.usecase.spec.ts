@@ -24,8 +24,9 @@ describe("GetAllUsersUseCase", () => {
     ];
 
     const repository: UserRepository = {
-      getAll: jest.fn().mockResolvedValue(users),
-      getById: jest.fn(),
+        getAll: jest.fn().mockResolvedValue(users),
+        getById: jest.fn(),
+        create: jest.fn(),
     };
 
     const useCase = new GetAllUsersUseCase(repository);

@@ -36,4 +36,15 @@ export class NodeUserDataSource extends UserDataSource {
   override async getById(id: string): Promise<User | null> {
     return this.users.find((user) => user.id === id) ?? null;
   }
+
+  override async create(user: Omit<User, "id">): Promise<User> {
+  const newUser: User = {
+    id: String(this.users.length + 1),
+    ...user,
+  };
+
+  this.users.push(newUser);
+
+  return newUser;
+  }
 }
