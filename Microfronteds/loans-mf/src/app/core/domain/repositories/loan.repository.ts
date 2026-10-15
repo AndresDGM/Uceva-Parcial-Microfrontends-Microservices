@@ -40,7 +40,7 @@ export abstract class LoanRepository {
    * - No transforma entidades de presentación.
    * - Mantiene el dominio independiente de la infraestructura.
    */
-  abstract create(loan: Loan): Observable<Loan>;
+  abstract create(loan: Omit<Loan, 'id'>): Observable<Loan>;
 
   /**
    * Obtiene el listado completo de préstamos.

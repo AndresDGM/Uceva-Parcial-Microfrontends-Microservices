@@ -1,0 +1,82 @@
+import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { LoanApiService } from './loan-api.service';
+import { Loan } from '../../domain/models/loan.model';
+import { environment } from '../../../../environments/environment';
+
+describe('LoanApiService', () => {
+  let service: LoanApiService;
+  let httpMock: HttpTestingController;
+
+  const loan: Loan = {
+    id: 1,
+    bookId: 101,
+    userId: 201,
+    loanDate: '2026-10-01',
+    returnDate: '2026-10-15',
+    status: 'ACTIVE'
+  };
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [LoanApiService]
+    });
+
+    service = TestBed.inject(LoanApiService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('debe crearse correctamente', () => {
+    expect(service).toBeTruthy();
+  });
+
+  it('debe crear un préstamo vía POST', () => {
+    service.create(loan).subscribe(result => {
+      expect(result).toEqual(loan);
+    });
+
+    const req = httpMock.expectOne(`${environment.baseUrlSpringBoot}/api/loans`);
+    expect(req.request.method).toBe('POST');
+    req.flush(loan);
+  });
+
+  it('debe obtener todos los préstamos vía GET', () => {
+    const loans = [loan];
+
+    service.getAll().subscribe(result => {
+      expect(result.length).toBe(1);
+      expect(result).toEqual(loans);
+    });
+
+    const req = httpMock.expectOne(`${environment.baseUrlSpringBoot}/api/loans`);
+    expect(req.request.method).toBe('GET');
+    req.flush(loans);
+  });
+
+  it('debe obtener un préstamo por ID vía GET', () => {
+    service.getById(1).subscribe(result => {
+      expect(result).toEqual(loan);
+    });
+
+    const req = httpMock.expectOne(`${environment.baseUrlSpringBoot}/api/loans/1`);
+    expect(req.request.method).toBe('GET');
+    req.flush(loan);
+  });
+
+  it('debe retornar null cuando el préstamo no existe (404)', () => {
+    let result: Loan | null = loan;
+
+    service.getById(999).subscribe(r => {
+      result = r;
+    });
+
+    const req = httpMock.expectOne(`${environment.baseUrlSpringBoot}/api/loans/999`);
+    req.flush({ status: 404, statusText: 'Not Found' });
+    expect(result).toBeNull();
+  });
+});
