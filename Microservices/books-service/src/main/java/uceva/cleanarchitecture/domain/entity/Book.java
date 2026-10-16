@@ -22,9 +22,9 @@ public class Book {
     private int pages;
     @Schema(description = "Descripción del libro", example = "Una obra maestra de la literatura hispanoamericana")
     private String description;
-    @Schema(description = "Idioma del libro", example = "Español")
+    @Schema(description = "Idioma del libro", example = "Spanish")
     private Language language;
-    @Schema(description = "Género del libro", example = "Ficción")
+    @Schema(description = "Género del libro", example = "Fantasy")
     private Genre genre;
     @Schema(description = "URL de la imagen de portada", example = "https://example.com/cover.jpg")
     private String coverImageUrl;

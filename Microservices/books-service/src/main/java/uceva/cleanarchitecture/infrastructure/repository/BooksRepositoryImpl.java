@@ -3,6 +3,7 @@ package uceva.cleanarchitecture.infrastructure.repository;
 import java.util.List;
 
 import uceva.cleanarchitecture.domain.entity.Book;
+import uceva.cleanarchitecture.domain.entity.Genre;
 import uceva.cleanarchitecture.domain.repository.BooksRepository;
 import uceva.cleanarchitecture.infrastructure.datasource.BooksDatasource;
 
@@ -15,8 +16,17 @@ public class BooksRepositoryImpl implements BooksRepository {
     }
 
     @Override 
-    public List<Book> getAll(int count) {
-        return booksDatasource.getAll(count);
+    public List<Book> getAll() {
+        return booksDatasource.getAll();
     }
     
+    @Override
+    public List<Book> getAllGenre(Genre genre) {
+        return booksDatasource.getAllGenre(genre);
+    }
+
+    @Override
+    public Book getById(int id) {
+        return booksDatasource.getById(id);
+    }
 }

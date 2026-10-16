@@ -3,7 +3,9 @@ package uceva.cleanarchitecture.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import uceva.cleanarchitecture.application.usecase.GetAllByGenreUseCase;
 import uceva.cleanarchitecture.application.usecase.GetAllUseCase;
+import uceva.cleanarchitecture.application.usecase.GetByIdUseCase;
 import uceva.cleanarchitecture.domain.repository.BooksRepository;
 import uceva.cleanarchitecture.infrastructure.datasource.BooksDatasource;
 import uceva.cleanarchitecture.infrastructure.repository.BooksRepositoryImpl;
@@ -24,5 +26,15 @@ public class AppConfig {
     @Bean
     GetAllUseCase getAllBooksUseCase(BooksRepository booksRepository) {
         return new GetAllUseCase(booksRepository);
+    }
+
+    @Bean 
+    GetAllByGenreUseCase getAllByGenreUseCase(BooksRepository booksRepository){
+        return new GetAllByGenreUseCase(booksRepository);
+    }
+
+    @Bean 
+    GetByIdUseCase getByIdUseCase(BooksRepository booksRepository){
+        return new GetByIdUseCase(booksRepository);
     }
 }

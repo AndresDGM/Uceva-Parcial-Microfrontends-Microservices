@@ -8,33 +8,63 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import uceva.cleanarchitecture.application.usecase.GetAllByGenreUseCase;
 import uceva.cleanarchitecture.application.usecase.GetAllUseCase;
+import uceva.cleanarchitecture.application.usecase.GetByIdUseCase;
 import uceva.cleanarchitecture.domain.entity.Book;
+import uceva.cleanarchitecture.domain.entity.Genre;
 
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@RestController 
+@RestController
 @RequestMapping("/books")
 @Tag(name = "Books", description = "Operaciones para la consulta y gestión de libros")
 public class BooksController {
     private final GetAllUseCase getAllUseCase;
+    private final GetByIdUseCase getByIdUseCase;
+    private final GetAllByGenreUseCase getAllByGenreUseCase;
 
-    public BooksController(GetAllUseCase getAllUseCase) {
+    public BooksController(GetAllUseCase getAllUseCase, GetByIdUseCase getByIdUseCase,
+            GetAllByGenreUseCase getAllByGenreUseCase) {
         this.getAllUseCase = getAllUseCase;
+        this.getByIdUseCase = getByIdUseCase;
+        this.getAllByGenreUseCase = getAllByGenreUseCase;
     }
 
-    @GetMapping("/{count}")
-    @Operation(summary = "Obtener listado de libros", description = "Retorna una cantidad determinada de libros simulados")
+    @GetMapping("/")
+    @Operation(summary = "Obtener listado de libros", description = "Retorna una lista de libros")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Listado de libros obtenido exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Parámetro count inválido"),
-        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+            @ApiResponse(responseCode = "200", description = "Listado de libros obtenido exitosamente"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
-    public List<Book> getMethodName(@Parameter(description = "Número de libros a generar y obtener", example = "5") @PathVariable int count) {
-        return getAllUseCase.execute(count);
+    public List<Book> getAllBooks() {
+        return getAllUseCase.execute();
     }
-    
+
+    @GetMapping("/genre/{genre}")
+    @Operation(summary = "Obtener listado de libros segun el genero", description = "Retorna una lista de libros segun el genero")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Listado de libros obtenido exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Parámetro genre inválido"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    public List<Book> getAllByGenre(
+            @Parameter(description = "Genero de los libros que quieres filtrar", example = "FANTASY") @PathVariable Genre genre) {
+        return getAllByGenreUseCase.execute(genre);
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Obtener libro segun el id", description = "Retorna un libro segun el id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Libro obtenido exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Parámetro id inválido"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    public Book getById(
+            @Parameter(description = "Id del libro que quieres consultar", example = "1") @PathVariable int id) {
+        return getByIdUseCase.execute(id);
+    }
 }

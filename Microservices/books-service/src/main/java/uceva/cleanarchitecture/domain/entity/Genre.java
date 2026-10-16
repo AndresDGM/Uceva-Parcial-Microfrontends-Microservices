@@ -6,16 +6,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Género del libro")
 public enum Genre {
-    FICCION("Ficción"),
-    NO_FICCION("No Ficción"),
-    MISTERIO("Misterio"),
+    FICTION("Fiction"),
+    NON_FICTION("Non-Fiction"),
+    MYSTERY("Mystery"),
     ROMANCE("Romance"),
-    CIENCIA_FICCION("Ciencia Ficción"),
-    FANTASIA("Fantasía"),
-    BIOGRAFIA("Biografía"),
-    HISTORIA("Historia"),
-    AUTOAYUDA("Autoayuda"),
-    INFANTIL("Infantil");
+    SCIENCE_FICTION("Science Fiction"),
+    FANTASY("Fantasy"),
+    BIOGRAPHY("Biography"),
+    HISTORY("History"),
+    SELF_HELP("Self-Help"),
+    CHILDREN("Children");
 
     private final String value;
 
@@ -28,4 +28,3 @@ public enum Genre {
         return value;
     }
 }
-
