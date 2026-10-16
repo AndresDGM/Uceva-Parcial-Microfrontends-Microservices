@@ -12,7 +12,7 @@ public class GetAllUseCase {
         this.booksRepository = booksRepository;
     }
 
-    public List<Book> execute() {
-        return booksRepository.getAll();
+    public List<Book> execute(int count) {
+        return booksRepository.getAll(count);
     }
 }
