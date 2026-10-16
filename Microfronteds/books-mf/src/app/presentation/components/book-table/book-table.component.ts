@@ -3,20 +3,12 @@ import { CommonModule } from '@angular/common';
 import { BookTableRow } from '../../interfaces/book.interface';
 
 /**
- * Componente de tabla reutilizable para mostrar el catálogo de libros.
+ * Componente de cuadrícula de tarjetas para mostrar el catálogo de libros.
  *
  * @remarks
- * Recibe una lista de libros mapeados a `BookTableRow`
- * y emite eventos para ver el detalle de un libro.
- *
- * @example
- * ```html
- * <app-book-table
- *   [books]="books"
- *   [isLoading]="isLoading"
- *   (viewDetail)="onViewDetail($event)"
- * />
- * ```
+ * Recibe una lista de libros mapeados a `BookTableRow` y presenta cada obra
+ * en una tarjeta accesible con portada, título, autor y etiqueta de género.
+ * Emite el evento `viewDetail` al seleccionar una tarjeta mediante clic o teclado.
  */
 @Component({
   selector: 'app-book-table',
@@ -26,47 +18,35 @@ import { BookTableRow } from '../../interfaces/book.interface';
   styleUrl: './book-table.component.scss'
 })
 export class BookTableComponent {
-  /** Lista de libros para mostrar en la tabla */
+  /** Lista de libros para mostrar en la cuadrícula */
   books = input.required<BookTableRow[]>();
 
   /** Indica si está cargando datos */
   isLoading = input(false);
 
-  /** Mensaje cuando no hay libros */
-  emptyMessage = input('No hay libros registrados');
+  /** Título cuando no hay resultados */
+  emptyTitle = input('Sin libros disponibles');
 
-  /** Icono para estado vacío */
-  emptyIcon = input('📚');
+  /** Mensaje descriptivo cuando no hay libros */
+  emptyMessage = input('No hay libros registrados en el catálogo.');
 
-  /** Evento emitido al hacer clic en ver detalle */
+  /** Evento emitido al seleccionar una tarjeta para ver su detalle */
   viewDetail = output<BookTableRow>();
 
-  /** Indica si la tabla tiene datos */
+  /** Conjunto de IDs de libros cuya imagen de portada falló al cargar */
+  private readonly failedCoverIds = new Set<number>();
+
+  /** Indica si el catálogo tiene libros para mostrar */
   hasBooks = computed(() => this.books().length > 0);
 
-  /** Columnas de la tabla */
-  columns = computed(() => [
-    { key: 'id', header: 'ID', width: '70px' },
-    { key: 'title', header: 'Título', width: '240px' },
-    { key: 'publisher', header: 'Editorial', width: '180px' },
-    { key: 'isbn', header: 'ISBN', width: '160px' },
-    { key: 'genre', header: 'Género', width: '150px' },
-    { key: 'language', header: 'Idioma', width: '120px' },
-    { key: 'pages', header: 'Páginas', width: '90px' },
-    { key: 'publicationYear', header: 'Publicación', width: '120px' },
-    { key: 'actions', header: 'Acciones', width: '100px' }
-  ]);
+  /** Verifica si un libro tiene una portada válida y sin error de carga */
+  hasValidCover(book: BookTableRow): boolean {
+    return Boolean(book.coverImageUrl && book.coverImageUrl.trim().length > 0 && !this.failedCoverIds.has(book.id));
+  }
 
-  /** Formatea fecha ISO para mostrar */
-  formatDate(dateStr: string): string {
-    if (!dateStr) return '-';
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return '-';
-    return date.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+  /** Registra el fallo de carga de la portada de un libro para mostrar el placeholder SVG */
+  onCoverError(bookId: number): void {
+    this.failedCoverIds.add(bookId);
   }
 
   /** Obtiene la clase CSS del badge de género */
@@ -74,15 +54,21 @@ export class BookTableComponent {
     return row.genreClass || '';
   }
 
-  /** Maneja clic en ver detalle */
-  onViewDetail(row: BookTableRow, event: Event): void {
+  /** Maneja la selección de una tarjeta por clic o tecla Enter */
+  onViewDetail(row: BookTableRow, event?: Event): void {
+    event?.stopPropagation();
+    this.viewDetail.emit(row);
+  }
+
+  /** Maneja la selección de una tarjeta mediante la barra espaciadora */
+  onCardKeydownSpace(row: BookTableRow, event: Event): void {
+    event.preventDefault();
     event.stopPropagation();
     this.viewDetail.emit(row);
   }
 
-  /** TrackBy para iteración de filas */
+  /** TrackBy para iteración de tarjetas */
   trackById(index: number, row: BookTableRow): number {
     return row.id;
   }
 }
-

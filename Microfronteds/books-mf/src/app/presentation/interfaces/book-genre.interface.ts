@@ -33,22 +33,6 @@ export const BOOK_GENRE_CLASSES: Record<Genre, string> = {
 };
 
 /**
- * Iconos representativos para cada género literario.
- */
-export const BOOK_GENRE_ICONS: Record<Genre, string> = {
-  [Genre.FICTION]: '📖',
-  [Genre.NON_FICTION]: '📘',
-  [Genre.MYSTERY]: '🕵️',
-  [Genre.ROMANCE]: '💖',
-  [Genre.SCIENCE_FICTION]: '🚀',
-  [Genre.FANTASY]: '🪄',
-  [Genre.BIOGRAPHY]: '👤',
-  [Genre.HISTORY]: '🏛️',
-  [Genre.SELF_HELP]: '🌱',
-  [Genre.CHILDREN]: '🧸'
-};
-
-/**
  * Etiquetas en español para los idiomas de los libros.
  */
 export const BOOK_LANGUAGE_LABELS: Record<Language, string> = {
@@ -67,11 +51,9 @@ export const BOOK_LANGUAGE_LABELS: Record<Language, string> = {
 /**
  * Opciones de género para selectores de filtrado en la interfaz.
  */
-export const GENRE_OPTIONS: Array<{ value: Genre; label: string; icon: string }> = Object.values(Genre).map(
+export const GENRE_OPTIONS: Array<{ value: Genre; label: string }> = Object.values(Genre).map(
   genre => ({
     value: genre,
-    label: BOOK_GENRE_LABELS[genre],
-    icon: BOOK_GENRE_ICONS[genre]
+    label: BOOK_GENRE_LABELS[genre]
   })
 );
-

@@ -1,19 +1,16 @@
-<div class="library-page">
-  <header class="hero">
-    <div class="hero-content">
-      <span class="eyebrow">Detalle de Libro</span>
+<div class="detail-page">
+  <header class="top-bar">
+    <div class="top-bar-text">
       <h1>{{ book ? book.title : 'Detalle del Libro' }}</h1>
-      <p>Información bibliográfica, sinopsis y recursos digitales de la obra seleccionada.</p>
+      <p>Información bibliográfica completa de la obra seleccionada</p>
     </div>
-    <div class="hero-decoration">
-      <span>{{ book ? getGenreIcon(book.genre) : '📚' }}</span>
-    </div>
+    <a routerLink="/books" class="back-top-btn">Volver al catálogo</a>
   </header>
 
   @if (isLoading) {
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Cargando libro...</p>
+    <div class="loading-state" role="status" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Cargando información del libro...</p>
     </div>
   } @else if (error) {
     <app-alert type="error" [message]="error" />
@@ -21,77 +18,92 @@
       <a routerLink="/books" class="secondary-button">Volver al Catálogo</a>
     </div>
   } @else if (book) {
-    <section class="library-card">
+    <section class="detail-card">
       <div class="book-detail-layout">
         <div class="book-cover-wrapper">
-          <img
-            [src]="book.coverImageUrl"
-            [alt]="book.title"
-            class="book-cover"
-          />
+          @if (hasValidCover(book)) {
+            <img
+              [src]="book.coverImageUrl"
+              [alt]="'Portada de ' + book.title"
+              class="book-cover"
+              (error)="onCoverError()"
+            />
+          } @else {
+            <div class="book-cover-placeholder" aria-label="Portada no disponible">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+              <span>Portada no disponible</span>
+            </div>
+          }
         </div>
 
         <div class="book-info">
-          <div class="card-heading">
-            <div class="heading-icon">{{ getGenreIcon(book.genre) }}</div>
-            <div>
-              <span class="section-label">{{ getGenreLabel(book.genre) }}</span>
-              <h2>{{ book.title }}</h2>
-              <p>Editorial: <strong>{{ book.publisher }}</strong></p>
+          <div class="book-header-block">
+            <h2>{{ book.title }}</h2>
+            <p class="book-author">Autor #{{ book.authorId }}</p>
+
+            <div class="pills-row">
+              <span class="pill-genre">{{ getGenreLabel(book.genre) }}</span>
+              <span class="pill-language">{{ getLanguageLabel(book.language) }}</span>
             </div>
           </div>
 
-          <div class="book-synopsis">
-            <h3>Sinopsis</h3>
-            <p>{{ book.description }}</p>
-          </div>
+          <dl class="metadata-list">
+            <div class="metadata-row">
+              <dt>ID</dt>
+              <dd>{{ book.id }}</dd>
+            </div>
+            <div class="metadata-row">
+              <dt>ISBN</dt>
+              <dd>{{ book.isbn }}</dd>
+            </div>
+            <div class="metadata-row">
+              <dt>Páginas</dt>
+              <dd>{{ book.pages }}</dd>
+            </div>
+            <div class="metadata-row">
+              <dt>Fecha de publicación</dt>
+              <dd>{{ formatDate(book.publicationYear) }}</dd>
+            </div>
+            @if (book.publisher) {
+              <div class="metadata-row">
+                <dt>Editorial</dt>
+                <dd>{{ book.publisher }}</dd>
+              </div>
+            }
+            <div class="metadata-row">
+              <dt>Idioma</dt>
+              <dd>{{ getLanguageLabel(book.language) }}</dd>
+            </div>
+            <div class="metadata-row">
+              <dt>Género</dt>
+              <dd>{{ getGenreLabel(book.genre) }}</dd>
+            </div>
+          </dl>
 
-          <div class="book-details-grid">
-            <div>
-              <span>ID del Libro</span>
-              <strong>#{{ book.id }}</strong>
+          @if (book.description) {
+            <div class="book-synopsis">
+              <h3>Sinopsis</h3>
+              <p>{{ book.description }}</p>
             </div>
-            <div>
-              <span>Autor ID</span>
-              <strong>#{{ book.authorId }}</strong>
-            </div>
-            <div>
-              <span>ISBN</span>
-              <strong>{{ book.isbn }}</strong>
-            </div>
-            <div>
-              <span>Idioma</span>
-              <strong>{{ getLanguageLabel(book.language) }}</strong>
-            </div>
-            <div>
-              <span>Género</span>
-              <strong>{{ getGenreIcon(book.genre) }} {{ getGenreLabel(book.genre) }}</strong>
-            </div>
-            <div>
-              <span>Páginas</span>
-              <strong>{{ book.pages }} págs.</strong>
-            </div>
-            <div>
-              <span>Fecha de Publicación</span>
-              <strong>{{ formatDate(book.publicationYear) }}</strong>
-            </div>
-            <div>
-              <span>Editorial</span>
-              <strong>{{ book.publisher }}</strong>
-            </div>
-          </div>
+          }
 
           <div class="form-actions">
-            @if (book.pdfUrl) {
+            <a routerLink="/books" class="secondary-button">Volver al Catálogo</a>
+
+            @if (hasValidPdfUrl(book.pdfUrl)) {
               <a
                 [href]="book.pdfUrl"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="primary-button">
-                📄 Abrir Documento PDF
+                Ver documento digital
               </a>
+            } @else {
+              <span class="pdf-unavailable">Documento digital no disponible</span>
             }
-            <a routerLink="/books" class="secondary-button">Volver al Catálogo</a>
           </div>
         </div>
       </div>

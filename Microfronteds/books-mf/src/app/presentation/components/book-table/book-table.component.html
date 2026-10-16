@@ -1,54 +1,62 @@
-<div class="table-container">
+<div class="catalog-grid-wrapper">
   @if (isLoading()) {
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Cargando libros...</p>
+    <div class="loading-state" role="status" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Cargando catálogo de libros...</p>
     </div>
   } @else if (hasBooks()) {
-    <table>
-      <thead>
-        <tr>
-          @for (col of columns(); track col.key) {
-            <th [style.width]="col.width">{{ col.header }}</th>
-          }
-        </tr>
-      </thead>
-      <tbody>
-        @for (book of books(); track trackById($index, book)) {
-          <tr>
-            <td>#{{ book.id }}</td>
-            <td class="book-title-cell">{{ book.title }}</td>
-            <td>{{ book.publisher }}</td>
-            <td>{{ book.isbn }}</td>
-            <td>
-              <span class="genre-badge" [class]="getGenreClass(book)">
-                {{ book.genreIcon }} {{ book.genreLabel }}
-              </span>
-            </td>
-            <td>{{ book.languageLabel }}</td>
-            <td>{{ book.pages }}</td>
-            <td>{{ formatDate(book.publicationYear) }}</td>
-            <td>
-              <div class="table-actions">
-                <button
-                  class="action-btn view-btn"
-                  (click)="onViewDetail(book, $event)"
-                  title="Ver detalle"
-                  type="button">
-                  👁
-                </button>
+    <div class="book-cards-grid" role="list">
+      @for (book of books(); track trackById($index, book)) {
+        <article
+          class="book-card"
+          role="button"
+          tabindex="0"
+          [attr.aria-label]="'Ver detalle de ' + book.title"
+          (click)="onViewDetail(book, $event)"
+          (keydown.enter)="onViewDetail(book, $event)"
+          (keydown.space)="onCardKeydownSpace(book, $event)">
+          <div class="book-card-cover-box">
+            @if (hasValidCover(book)) {
+              <img
+                [src]="book.coverImageUrl"
+                [alt]="'Portada de ' + book.title"
+                class="book-card-cover"
+                loading="lazy"
+                (error)="onCoverError(book.id)"
+              />
+            } @else {
+              <div class="book-cover-placeholder" aria-label="Portada no disponible">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                <span>Portada no disponible</span>
               </div>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+            }
+          </div>
+
+          <div class="book-card-body">
+            <h3 class="book-card-title" [title]="book.title">{{ book.title }}</h3>
+            <p class="book-card-author">Autor #{{ book.authorId }}</p>
+            <div class="book-card-footer">
+              <span class="genre-badge" [class]="getGenreClass(book)">
+                {{ book.genreLabel }}
+              </span>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
   } @else {
-    <div class="empty-state">
-      <span class="empty-icon">{{ emptyIcon() }}</span>
-      <h3>Sin libros</h3>
+    <div class="empty-state" role="status">
+      <div class="empty-icon-box" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+        </svg>
+      </div>
+      <h3>{{ emptyTitle() }}</h3>
       <p>{{ emptyMessage() }}</p>
     </div>
   }
 </div>
-

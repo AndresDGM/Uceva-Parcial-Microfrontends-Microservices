@@ -6,18 +6,16 @@ import { Book, Genre, Language } from '../../../core/domain/models/book.model';
 import { GetBookByIdUseCase } from '../../../core/application/use-cases/book/get-book-by-id.usecase';
 import {
   BOOK_GENRE_CLASSES,
-  BOOK_GENRE_ICONS,
   BOOK_GENRE_LABELS,
   BOOK_LANGUAGE_LABELS
 } from '../../interfaces/book-genre.interface';
 
 /**
- * Página de detalle de un libro.
+ * Página de detalle de un libro accedida mediante ruta directa `/books/:id`.
  *
  * @remarks
  * Muestra la información bibliográfica completa de un libro específico,
- * su portada y enlace al documento digital en PDF.
- * Obtiene el ID de la ruta y ejecuta el caso de uso `GetBookByIdUseCase`.
+ * su portada y enlace al documento digital en PDF sin usar emojis.
  */
 @Component({
   selector: 'app-book-detail',
@@ -33,10 +31,10 @@ export class BookDetailPage implements OnInit {
   book: Book | null = null;
   isLoading = false;
   error: string | null = null;
+  coverLoadError = false;
 
   readonly genreLabels = BOOK_GENRE_LABELS;
   readonly genreClasses = BOOK_GENRE_CLASSES;
-  readonly genreIcons = BOOK_GENRE_ICONS;
   readonly languageLabels = BOOK_LANGUAGE_LABELS;
 
   ngOnInit(): void {
@@ -52,6 +50,7 @@ export class BookDetailPage implements OnInit {
   loadBook(id: number): void {
     this.isLoading = true;
     this.error = null;
+    this.coverLoadError = false;
 
     this.getBookByIdUseCase.execute(id).subscribe({
       next: (book) => {
@@ -72,6 +71,23 @@ export class BookDetailPage implements OnInit {
   /** Regresa a la página anterior en el historial */
   goBack(): void {
     window.history.back();
+  }
+
+  /** Verifica si la portada es válida y no ha fallado al cargar */
+  hasValidCover(book: Book): boolean {
+    return Boolean(book.coverImageUrl && book.coverImageUrl.trim().length > 0 && !this.coverLoadError);
+  }
+
+  /** Registra fallo de carga de la portada */
+  onCoverError(): void {
+    this.coverLoadError = true;
+  }
+
+  /** Verifica si la URL del documento digital PDF es válida */
+  hasValidPdfUrl(url: string | undefined | null): boolean {
+    if (!url) return false;
+    const trimmed = url.trim();
+    return trimmed.startsWith('http://') || trimmed.startsWith('https://');
   }
 
   /** Formatea una fecha ISO a formato legible en español */
@@ -96,14 +112,8 @@ export class BookDetailPage implements OnInit {
     return this.genreClasses[genre as Genre] || '';
   }
 
-  /** Obtiene el icono asociado al género literario */
-  getGenreIcon(genre: Genre | string): string {
-    return this.genreIcons[genre as Genre] || '📚';
-  }
-
   /** Obtiene la etiqueta en español del idioma */
   getLanguageLabel(language: Language | string): string {
     return this.languageLabels[language as Language] || language;
   }
 }
-

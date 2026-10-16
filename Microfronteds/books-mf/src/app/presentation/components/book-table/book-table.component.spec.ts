@@ -24,35 +24,49 @@ describe('BookTableComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('debe mostrar la tabla con los libros', () => {
+  it('debe mostrar la cuadrícula de tarjetas con los libros', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const rows = compiled.querySelectorAll('tbody tr');
-    expect(rows.length).toBe(3);
+    const cards = compiled.querySelectorAll('.book-card');
+    expect(cards.length).toBe(3);
   });
 
-  it('debe mostrar columnas correctas en el encabezado', () => {
+  it('debe mostrar portada, título, autor y género en cada tarjeta sin metadatos de detalle', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const headers = compiled.querySelectorAll('thead th');
-    expect(headers.length).toBe(9);
-    expect(headers[0].textContent?.trim()).toBe('ID');
-    expect(headers[1].textContent?.trim()).toBe('Título');
-    expect(headers[2].textContent?.trim()).toBe('Editorial');
-    expect(headers[3].textContent?.trim()).toBe('ISBN');
-    expect(headers[4].textContent?.trim()).toBe('Género');
-    expect(headers[5].textContent?.trim()).toBe('Idioma');
-    expect(headers[6].textContent?.trim()).toBe('Páginas');
-    expect(headers[7].textContent?.trim()).toBe('Publicación');
-    expect(headers[8].textContent?.trim()).toBe('Acciones');
+    const firstCard = compiled.querySelector('.book-card') as HTMLElement;
+
+    expect(firstCard.querySelector('.book-card-title')?.textContent?.trim()).toBe(mockRows[0].title);
+    expect(firstCard.querySelector('.book-card-author')?.textContent?.trim()).toBe(`Autor #${mockRows[0].authorId}`);
+    expect(firstCard.querySelector('.genre-badge')?.textContent?.trim()).toBe(mockRows[0].genreLabel);
+    expect(firstCard.textContent).not.toContain(mockRows[0].isbn);
   });
 
-  it('debe emitir evento viewDetail al hacer clic en ver', () => {
+  it('debe emitir evento viewDetail al hacer clic en una tarjeta', () => {
     const viewDetailSpy = jest.fn();
     component.viewDetail.subscribe(viewDetailSpy);
 
-    const viewBtn = fixture.nativeElement.querySelector('.view-btn') as HTMLButtonElement;
-    viewBtn.click();
+    const firstCard = fixture.nativeElement.querySelector('.book-card') as HTMLElement;
+    firstCard.click();
 
     expect(viewDetailSpy).toHaveBeenCalledWith(mockRows[0]);
+  });
+
+  it('debe emitir evento viewDetail al presionar Space en una tarjeta', () => {
+    const viewDetailSpy = jest.fn();
+    component.viewDetail.subscribe(viewDetailSpy);
+
+    const event = new KeyboardEvent('keydown', { key: ' ' });
+    component.onCardKeydownSpace(mockRows[0], event);
+
+    expect(viewDetailSpy).toHaveBeenCalledWith(mockRows[0]);
+  });
+
+  it('debe mostrar placeholder SVG cuando la portada falla al cargar', () => {
+    component.onCoverError(mockRows[0].id);
+    fixture.detectChanges();
+
+    expect(component.hasValidCover(mockRows[0])).toBe(false);
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.book-cover-placeholder svg')).toBeTruthy();
   });
 
   it('debe mostrar estado vacío cuando no hay libros', () => {
@@ -61,7 +75,7 @@ describe('BookTableComponent', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.empty-state')).toBeTruthy();
-    expect(compiled.querySelector('.empty-state h3')?.textContent).toContain('Sin libros');
+    expect(compiled.querySelector('.empty-state h3')?.textContent).toContain('Sin libros disponibles');
   });
 
   it('debe mostrar estado de carga cuando isLoading es true', () => {
@@ -73,22 +87,14 @@ describe('BookTableComponent', () => {
     expect(compiled.querySelector('.spinner')).toBeTruthy();
   });
 
-  it('debe formatear fechas correctamente', () => {
-    const formatted = component.formatDate('1967-05-30T00:00:00Z');
-    expect(formatted).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
-    expect(component.formatDate('')).toBe('-');
-    expect(component.formatDate('invalid')).toBe('-');
-  });
-
   it('debe aplicar clases de género correctas', () => {
     expect(component.getGenreClass(mockRows[0])).toBe('genre-fantasy');
     expect(component.getGenreClass(mockRows[1])).toBe('genre-non-fiction');
     expect(component.getGenreClass(mockRows[2])).toBe('genre-science-fiction');
   });
 
-  it('debe usar trackById para iteración de filas', () => {
+  it('debe usar trackById para iteración de tarjetas', () => {
     expect(component.trackById(0, mockRows[0])).toBe(1);
     expect(component.trackById(1, mockRows[1])).toBe(2);
   });
 });
-

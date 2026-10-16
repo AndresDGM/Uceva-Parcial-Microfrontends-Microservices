@@ -13,8 +13,8 @@ import { Book, Genre } from '../../domain/models/book.model';
  * como un **Data Source** que provee información desde el backend
  * Spring Boot (`books-service`) mediante peticiones HTTP.
  *
- * ❗ No contiene lógica de negocio.
- * ❗ No debe ser consumido directamente por los casos de uso.
+ * - No contiene lógica de negocio.
+ * - No debe ser consumido directamente por los casos de uso.
  *
  * Es utilizado por repositorios de infraestructura que adaptan
  * los datos al dominio.

@@ -4,11 +4,10 @@ import { CommonModule } from '@angular/common';
 export type AlertType = 'error' | 'success' | 'info' | 'warning';
 
 /**
- * Componente de alerta reutilizable para mostrar mensajes de estado.
+ * Componente de alerta reutilizable para mostrar mensajes de estado con iconos SVG.
  *
  * @remarks
  * Soporta 4 tipos: error, success, info, warning.
- * Usa las clases CSS del design system compartido.
  *
  * @example
  * ```html
@@ -37,18 +36,6 @@ export class AlertComponent {
     return `${base} ${typeClass}`;
   });
 
-  /** Icono según el tipo */
-  icon = computed(() => {
-    switch (this.type()) {
-      case 'error': return '✕';
-      case 'success': return '✓';
-      case 'warning': return '⚠';
-      case 'info':
-      default: return 'ℹ';
-    }
-  });
-
-  /** Clases del icono */
+  /** Clases del contenedor del icono */
   iconClasses = computed(() => `alert-icon alert-${this.type()}-icon`);
 }
-

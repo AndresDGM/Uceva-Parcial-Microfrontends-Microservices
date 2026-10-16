@@ -80,8 +80,18 @@ describe('BookDetailPage', () => {
 
     expect(component.getGenreLabel(Genre.FANTASY)).toBe('Fantasía');
     expect(component.getGenreClass(Genre.FANTASY)).toBe('genre-fantasy');
-    expect(component.getGenreIcon(Genre.FANTASY)).toBe('🪄');
     expect(component.getLanguageLabel(Language.SPANISH)).toBe('Español');
+    expect(component.hasValidPdfUrl(mockBook.pdfUrl)).toBe(true);
+    expect(component.hasValidPdfUrl('')).toBe(false);
+  });
+
+  it('debe manejar error de carga de portada mostrando el placeholder SVG', async () => {
+    await setupComponent('1');
+    getBookByIdUseCase.execute.mockReturnValue(of(mockBook));
+    fixture.detectChanges();
+
+    component.onCoverError();
+    expect(component.hasValidCover(mockBook)).toBe(false);
   });
 
   it('debe invocar window.history.back al llamar goBack', async () => {
@@ -94,4 +104,3 @@ describe('BookDetailPage', () => {
     historySpy.mockRestore();
   });
 });
-

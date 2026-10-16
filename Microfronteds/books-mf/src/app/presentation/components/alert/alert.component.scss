@@ -2,23 +2,26 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  padding: 1rem 1.25rem;
-  border-radius: 12px;
+  margin-bottom: 1.25rem;
+  padding: 0.875rem 1.125rem;
+  border-radius: 10px;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 .alert-icon {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
-  border-radius: 50%;
-  font-weight: 800;
-  font-size: 0.8rem;
+}
+
+.alert-icon svg {
+  width: 18px;
+  height: 18px;
 }
 
 .alert-error {
@@ -28,8 +31,7 @@
 }
 
 .alert-error-icon {
-  background: #dc2626;
-  color: #fff;
+  color: #dc2626;
 }
 
 .alert-success {
@@ -39,8 +41,7 @@
 }
 
 .alert-success-icon {
-  background: #16a34a;
-  color: #fff;
+  color: #16a34a;
 }
 
 .alert-warning {
@@ -50,8 +51,7 @@
 }
 
 .alert-warning-icon {
-  background: #d97706;
-  color: #fff;
+  color: #d97706;
 }
 
 .alert-info {
@@ -61,7 +61,5 @@
 }
 
 .alert-info-icon {
-  background: #2563eb;
-  color: #fff;
+  color: #2563eb;
 }
-
