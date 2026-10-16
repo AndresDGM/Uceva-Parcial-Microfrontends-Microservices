@@ -1,0 +1,7 @@
+allowBuilds:
+  '@compodoc/compodoc': true
+  '@parcel/watcher': true
+  esbuild: true
+  lmdb: true
+  msgpackr-extract: true
+  unrs-resolver: true

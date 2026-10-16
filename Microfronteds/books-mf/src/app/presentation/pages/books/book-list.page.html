@@ -1,0 +1,264 @@
+<div class="catalog-page">
+  <!-- Barra superior compacta de búsqueda -->
+  <header class="top-search-bar">
+    <div class="brand-block">
+      <h1>Biblioteca</h1>
+      <p>Descubre y consulta nuestro catálogo</p>
+    </div>
+
+    <form class="search-bar-form" (ngSubmit)="onSearchById()" role="search" aria-label="Buscar libro por ID">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input
+          id="book-id-input"
+          name="searchIdInput"
+          type="text"
+          inputmode="numeric"
+          [(ngModel)]="searchIdInput"
+          placeholder="Buscar libro por ID (ej. 1)..."
+          aria-label="Buscar libro por ID"
+          autocomplete="off"
+        />
+        @if (searchIdInput) {
+          <button
+            type="button"
+            class="clear-input-btn"
+            (click)="searchIdInput = ''; error = null"
+            aria-label="Limpiar campo de búsqueda">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="search-submit-btn"
+        [disabled]="isDetailLoading || isLoading">
+        Buscar
+      </button>
+    </form>
+  </header>
+
+  <!-- Contenedor principal del catálogo -->
+  <main class="catalog-surface">
+    <div class="catalog-toolbar">
+      <div class="catalog-title-group">
+        <h2>Libros disponibles</h2>
+        <p class="catalog-count">
+          {{ books.length === 1 ? '1 libro en el catálogo' : books.length + ' libros en el catálogo' }}
+        </p>
+      </div>
+
+      <div class="catalog-controls">
+        <div class="genre-filter-box">
+          <label for="genre-select">Género</label>
+          <div class="select-wrapper">
+            <select
+              id="genre-select"
+              [ngModel]="selectedGenre"
+              (ngModelChange)="onGenreChange($event)"
+              aria-label="Filtrar por género literario">
+              <option value="">Todos</option>
+              @for (option of genreOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+            <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+        </div>
+
+        @if (selectedGenre || searchIdInput || error) {
+          <button
+            type="button"
+            class="reset-filters-btn"
+            (click)="clearFilters()"
+            title="Restablecer catálogo completo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="1 4 1 10 7 10"></polyline>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+            <span>Ver todos</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (error) {
+      <app-alert [type]="alertType" [message]="error" />
+    }
+
+    <app-book-table
+      [books]="books"
+      [isLoading]="isLoading"
+      [emptyTitle]="selectedGenre ? 'Sin coincidencias' : 'Catálogo vacío'"
+      [emptyMessage]="selectedGenre ? 'No se encontraron libros para el género seleccionado.' : 'No hay libros disponibles en este momento.'"
+      (viewDetail)="onViewDetail($event)"
+    />
+  </main>
+
+  <!-- Ventana flotante (Modal) de detalle del libro -->
+  @if (isModalOpen) {
+    <div
+      class="modal-backdrop"
+      (click)="onBackdropClick($event)"
+      role="presentation">
+      <div
+        class="modal-dialog-card"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="selectedBook ? 'modal-book-title' : 'modal-status-title'">
+        <button
+          #modalCloseBtn
+          type="button"
+          class="modal-close-icon-btn"
+          (click)="closeModal()"
+          [disabled]="isDetailLoading"
+          aria-label="Cerrar detalle del libro">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        @if (isDetailLoading) {
+          <div class="modal-loading-state" role="status" aria-live="polite">
+            <div class="modal-spinner" aria-hidden="true"></div>
+            <h3 id="modal-status-title">Consultando libro...</h3>
+            <p>Recuperando la información bibliográfica del servidor.</p>
+          </div>
+        } @else if (modalError) {
+          <div class="modal-error-state">
+            <h3 id="modal-status-title">Error de consulta</h3>
+            <app-alert type="error" [message]="modalError" />
+            <div class="modal-actions">
+              <button type="button" class="modal-secondary-btn" (click)="closeModal()">
+                Cerrar
+              </button>
+              <button type="button" class="modal-primary-btn" (click)="retrySearchById()">
+                Reintentar
+              </button>
+            </div>
+          </div>
+        } @else if (selectedBook) {
+          <!-- Encabezado con portada, título, autor y etiquetas -->
+          <div class="modal-top-section">
+            <div class="modal-cover-box">
+              @if (hasValidModalCover(selectedBook)) {
+                <img
+                  [src]="selectedBook.coverImageUrl"
+                  [alt]="'Portada de ' + selectedBook.title"
+                  class="modal-cover-img"
+                  (error)="onModalCoverError(selectedBook.id)"
+                />
+              } @else {
+                <div class="modal-cover-placeholder" aria-label="Portada no disponible">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                  </svg>
+                  <span>Portada no disponible</span>
+                </div>
+              }
+            </div>
+
+            <div class="modal-header-info">
+              <h2 id="modal-book-title">{{ selectedBook.title }}</h2>
+              <p class="modal-book-author">Autor #{{ selectedBook.authorId }}</p>
+
+              <div class="modal-pills">
+                <span class="pill-genre">{{ selectedBook.genreLabel }}</span>
+                @if (selectedBook.languageLabel) {
+                  <span class="pill-language">{{ selectedBook.languageLabel }}</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Bloque de metadatos alineados -->
+          <dl class="modal-metadata-list">
+            <div class="metadata-row">
+              <dt>ID</dt>
+              <dd>{{ selectedBook.id }}</dd>
+            </div>
+            @if (selectedBook.isbn) {
+              <div class="metadata-row">
+                <dt>ISBN</dt>
+                <dd>{{ selectedBook.isbn }}</dd>
+              </div>
+            }
+            @if (selectedBook.pages) {
+              <div class="metadata-row">
+                <dt>Páginas</dt>
+                <dd>{{ selectedBook.pages }}</dd>
+              </div>
+            }
+            @if (selectedBook.publicationYear) {
+              <div class="metadata-row">
+                <dt>Fecha de publicación</dt>
+                <dd>{{ formatDate(selectedBook.publicationYear) }}</dd>
+              </div>
+            }
+            @if (selectedBook.publisher) {
+              <div class="metadata-row">
+                <dt>Editorial</dt>
+                <dd>{{ selectedBook.publisher }}</dd>
+              </div>
+            }
+            @if (selectedBook.languageLabel) {
+              <div class="metadata-row">
+                <dt>Idioma</dt>
+                <dd>{{ selectedBook.languageLabel }}</dd>
+              </div>
+            }
+            @if (selectedBook.genreLabel) {
+              <div class="metadata-row">
+                <dt>Género</dt>
+                <dd>{{ selectedBook.genreLabel }}</dd>
+              </div>
+            }
+          </dl>
+
+          <!-- Sinopsis -->
+          @if (selectedBook.description) {
+            <div class="modal-synopsis">
+              <h3>Sinopsis</h3>
+              <p>{{ selectedBook.description }}</p>
+            </div>
+          }
+
+          <!-- Acciones inferiores -->
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="modal-secondary-btn"
+              (click)="closeModal()">
+              Cerrar
+            </button>
+
+            @if (hasValidPdfUrl(selectedBook.pdfUrl)) {
+              <a
+                [href]="selectedBook.pdfUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="modal-primary-btn">
+                <span>Ver documento digital</span>
+              </a>
+            } @else {
+              <span class="pdf-unavailable-label" role="status">
+                Documento digital no disponible
+              </span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

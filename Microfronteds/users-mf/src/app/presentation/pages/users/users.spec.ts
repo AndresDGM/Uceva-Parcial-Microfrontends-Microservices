@@ -75,7 +75,11 @@ describe('Users', () => {
           useValue: createUser,
         },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(Users, {
+        set: { providers: [] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(Users);
     component = fixture.componentInstance;
