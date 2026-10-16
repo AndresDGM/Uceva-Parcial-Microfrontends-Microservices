@@ -1,128 +1,144 @@
-# Books Microfrontend (books-mf)
+# Microfrontend de Libros (`books-mf`)
 
-```
+## Descripción general
+
+El módulo **`books-mf`** implementa la gestión y consulta del catálogo bibliográfico para la plataforma Uceva, desarrollado en **Angular 20** aplicando **Arquitectura Limpia (Clean Architecture)** y expuesto mediante **Webpack Module Federation** para su integración en la aplicación `host`.
+
+Consta de tres casos de uso principales:
+
+1. **Obtener Todos los Libros (`GetAllBooksUseCase`)** - Recuperar el catálogo completo de libros disponibles.
+2. **Obtener Libros por Género (`GetAllBooksByGenreUseCase`)** - Filtrar el catálogo según el género literario (`Genre`).
+3. **Obtener Libro por ID (`GetBookByIdUseCase`)** - Consultar la información bibliográfica completa de un libro específico por su identificador único.
+
+---
+
+## Arquitectura (Clean Architecture)
+
+```text
 src/app
 │
 ├── core
 │   ├── domain
 │   │   ├── models
-│   │   │   ├── user.model.ts
-│   │   │   └── product.model.ts
+│   │   │   ├── book.model.ts
+│   │   │   ├── genre.model.ts
+│   │   │   └── language.model.ts
 │   │   └── repositories
-│   │       ├── user.repository.ts
-│   │       └── product.repository.ts
-│   │
+│   │       ├── book-repository.token.ts
+│   │       └── book.repository.ts
 │   ├── application
 │   │   └── use-cases
-│   │       ├── get-all-users.usecase.ts
-│   │       ├── get-user-by-id.usecase.ts
-│   │       ├── get-all-products.usecase.ts
-│   │       └── get-product-by-id.usecase.ts
-│   │
+│   │       └── book
+│   │           ├── get-all-books.usecase.ts
+│   │           ├── get-all-books-by-genre.usecase.ts
+│   │           └── get-book-by-id.usecase.ts
 │   └── infrastructure
 │       ├── services
-│       │   ├── user-api.service.ts
-│       │   └── product-api.service.ts
+│       │   └── book-api.service.ts
 │       └── repositories
-│           ├── user.repository.impl.ts
-│           └── product.repository.impl.ts
+│           └── springboot-implementation
+│               └── book-springboot.repository.impl.ts
 │
-├── presentation
-│   ├── users
-│   └── products
+├── mocks
+│   └── activated-route.mock.ts
 │
-└── app.config.ts
+└── presentation
+    ├── components
+    │   ├── alert/alert.component.ts
+    │   └── book-table/book-table.component.ts
+    ├── interfaces
+    │   ├── book-genre.interface.ts
+    │   └── book.interface.ts
+    └── pages
+        └── books
+            ├── book-list.page.ts
+            └── book-detail.page.ts
 ```
 
+---
 
-## Paso 1 - Crear Modelos
+## Casos de uso
 
-```
-src/app/core/domain/models/
-├── user.model.ts
-└── product.model.ts
-```
+| Caso de uso | Archivo | Descripción |
+|---|---|---|
+| `GetAllBooksUseCase` | `get-all-books.usecase.ts` | Recupera la lista completa de libros desde el contrato `BookRepository` |
+| `GetAllBooksByGenreUseCase` | `get-all-books-by-genre.usecase.ts` | Filtra los libros del catálogo por el enum `Genre` |
+| `GetBookByIdUseCase` | `get-book-by-id.usecase.ts` | Consulta un libro específico por su `id` (retorna `Book \| null`) |
 
-## Paso 2 - Crear Repositorios
+---
 
-```
-src/app/core/domain/repositories/
-├── user.repository.ts
-└── product.repository.ts
-```
+## Configuración de Module Federation
 
-## Paso 3 - Crear Casos de Uso
+- **Nombre del remoto:** `mf-books`
+- **Puerto de ejecución:** `4202`
+- **Remote Entry:** `http://localhost:4202/remoteEntry.js`
+- **Módulo expuesto:** `./BooksPage` -> `./src/app/presentation/pages/books/book-list.page.ts` (`BookListPage` / `BooksPage`)
 
-### User
-```
-src/app/core/application/usecases/user/
-├── get-all-users.usecase.ts
-└── get-user-by-id.usecase.ts
-```
+---
 
-### Product
-```
-src/app/core/application/usecases/product/
-├── get-all-products.usecase.ts
-└── get-product-by-id.usecase.ts
-```
+## Integración con el Microservicio (`books-service`)
 
-## Paso 4 - Crear Servicios
+El microfrontend se comunica con el microservicio **Spring Boot (`books-service`)** en el puerto **`8081`**:
 
+- **Base URL configurada (`environment.ts`):** `http://localhost:8081`
+- **Endpoints consumidos:**
+  - `GET http://localhost:8081/api/v1/books` - Obtener todos los libros
+  - `GET http://localhost:8081/api/v1/books/genre/:genre` - Filtrar libros por género (`Genre` enum key)
+  - `GET http://localhost:8081/api/v1/books/:id` - Obtener un libro por su ID
+- **Swagger UI del microservicio:** `http://localhost:8081/api/swagger-ui/index.html`
 
-```
-src/app/core/infrastructure/services/
-├── user.service.ts
-└── product.service.ts
-```
+---
 
-## Paso 5 - Crear Repositorios Implementadores
+## Instrucciones de ejecución
 
-### Implementación para Consumo de Datos Local
-```
-src/app/core/infrastructure/repositories/local
-├── user-local.repository.impl.ts
-└── product-local.repository.impl.ts
+### 1. Instalar dependencias
+
+```bash
+cd Microfronteds/books-mf
+npm install
 ```
 
-### Implementación para Consumo de Datos NodeJS
-```
-src/app/core/infrastructure/repositories/node
-├── user-node.repository.impl.ts
-└── product-node.repository.impl.ts
-```
+### 2. Ejecutar servidor de desarrollo
 
-## Paso 6 - Agregar Providers con sus Implementadores
-
-```
-src/app/
-└── app.config.ts
-```
-
-# Funcionamiento del Frontend
-
-## Ejecutar Frontend
-```
+```bash
 npm run start
 ```
 
-## Urls Consumo
+- **Ejecución individual:** `http://localhost:4202`
+- **Archivo Module Federation:** `http://localhost:4202/remoteEntry.js`
+- **Ejecución integrada en el Host:** `http://localhost:4200/books`
 
-### Frontend
-```
-http://localhost:4200
-```
+### 3. Compilar para producción
 
-### Backend NodeJS
-```
-http://localhost:3000/api/docs
-http://localhost:3000/api/users/{countUsers}
-http://localhost:3000/api/products/{countProducts}
+```bash
+npm run build
 ```
 
-### Backend SpringBoot
+---
+
+## Pruebas unitarias y cobertura
+
+El proyecto utiliza **Jest** y supera el requisito mínimo del **90%** de cobertura en todas las capas:
+
+```bash
+# Ejecutar pruebas unitarias
+npm test
+
+# Ejecutar pruebas con reporte de cobertura
+npm run test:coverage
 ```
-http://localhost:3000/api/swagger-ui/index.html
-http://localhost:3000/api/users/{countUsers}
-http://localhost:3000/api/products/{countProducts}
+
+- **Suites de prueba:** 10 pasadas de 10 totales (69 tests en total)
+- **Cobertura alcanzada:** **99.11% statements / 99.02% lines**
+
+---
+
+## Documentación técnica (Compodoc)
+
+Para generar la documentación técnica interactiva del microfrontend (cobertura de documentación **95%**):
+
+```bash
+npm run compodoc
 ```
+
+La documentación se genera en la carpeta `./documentation/`.

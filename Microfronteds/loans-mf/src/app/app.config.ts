@@ -3,6 +3,18 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChang
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 
+// Domain
+import { LoanRepository } from './core/domain/repositories/loan.repository';
+import { LOAN_REPOSITORY_TOKEN } from './core/domain/repositories/loan-repository.token';
+
+// Infrastructure
+import { LoanSpringbootRepositoryImpl } from './core/infrastructure/repositories/springboot-implementation/loan-springboot.repository.impl';
+
+// Application
+import { CreateLoanUseCase } from './core/application/use-cases/loan/create-loan.usecase';
+import { GetAllLoansUseCase } from './core/application/use-cases/loan/get-all-loans.usecase';
+import { GetLoanByIdUseCase } from './core/application/use-cases/loan/get-loan-by-id.usecase';
+
 /**
  * Configuración principal de la aplicación Angular.
  *
@@ -17,5 +29,9 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(),
+    { provide: LOAN_REPOSITORY_TOKEN, useClass: LoanSpringbootRepositoryImpl },
+    CreateLoanUseCase,
+    GetAllLoansUseCase,
+    GetLoanByIdUseCase
   ]
 };

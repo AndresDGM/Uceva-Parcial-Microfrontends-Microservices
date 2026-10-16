@@ -1,128 +1,44 @@
-# Host Application (host)
+# Aplicación Host (`host`)
 
-```
-src/app
-│
-├── core
-│   ├── domain
-│   │   ├── models
-│   │   │   ├── user.model.ts
-│   │   │   └── product.model.ts
-│   │   └── repositories
-│   │       ├── user.repository.ts
-│   │       └── product.repository.ts
-│   │
-│   ├── application
-│   │   └── use-cases
-│   │       ├── get-all-users.usecase.ts
-│   │       ├── get-user-by-id.usecase.ts
-│   │       ├── get-all-products.usecase.ts
-│   │       └── get-product-by-id.usecase.ts
-│   │
-│   └── infrastructure
-│       ├── services
-│       │   ├── user-api.service.ts
-│       │   └── product-api.service.ts
-│       └── repositories
-│           ├── user.repository.impl.ts
-│           └── product.repository.impl.ts
-│
-├── presentation
-│   ├── users
-│   └── products
-│
-└── app.config.ts
+## Descripción general
+
+La aplicación **`host`** actúa como contenedor principal (*shell*) de la arquitectura de microfrontends desarrollada en **Angular 20** y **Webpack Module Federation**. Integra y gestiona la navegación dinámica entre los tres microfrontends independientes del sistema mediante un `NavbarOrganism` compartido.
+
+---
+
+## Configuración de Puertos y Microfrontends Remotos
+
+- **Puerto de ejecución del Host:** `4200` (`http://localhost:4200`)
+
+| Ruta en el Host | Microfrontend | Puerto Remoto | Remote Entry | Módulo Expuesto | Microservicio Consumido |
+|---|---|---|---|---|---|
+| `/users` | `users-mf` | `4201` | `http://localhost:4201/remoteEntry.js` | `./UsersPage` | `users-service` (`http://localhost:3000`) |
+| `/books` | `books-mf` | `4202` | `http://localhost:4202/remoteEntry.js` | `./BooksPage` | `books-service` (`http://localhost:8081`) |
+| `/loans` | `loans-mf` | `4203` | `http://localhost:4203/remoteEntry.js` | `./LoansPage` | `loans-service` (`http://localhost:8080`) |
+
+---
+
+## Instrucciones de ejecución
+
+### 1. Instalar dependencias
+
+```bash
+cd Microfronteds/host
+npm install
 ```
 
+### 2. Iniciar el servidor de desarrollo
 
-## Paso 1 - Crear Modelos
+Asegúrate de tener en ejecución los microfrontends remotos (`4201`, `4202`, `4203`) y sus respectivos microservicios (`3000`, `8081`, `8080`), y luego ejecuta:
 
-```
-src/app/core/domain/models/
-├── user.model.ts
-└── product.model.ts
-```
-
-## Paso 2 - Crear Repositorios
-
-```
-src/app/core/domain/repositories/
-├── user.repository.ts
-└── product.repository.ts
-```
-
-## Paso 3 - Crear Casos de Uso
-
-### User
-```
-src/app/core/application/usecases/user/
-├── get-all-users.usecase.ts
-└── get-user-by-id.usecase.ts
-```
-
-### Product
-```
-src/app/core/application/usecases/product/
-├── get-all-products.usecase.ts
-└── get-product-by-id.usecase.ts
-```
-
-## Paso 4 - Crear Servicios
-
-
-```
-src/app/core/infrastructure/services/
-├── user.service.ts
-└── product.service.ts
-```
-
-## Paso 5 - Crear Repositorios Implementadores
-
-### Implementación para Consumo de Datos Local
-```
-src/app/core/infrastructure/repositories/local
-├── user-local.repository.impl.ts
-└── product-local.repository.impl.ts
-```
-
-### Implementación para Consumo de Datos NodeJS
-```
-src/app/core/infrastructure/repositories/node
-├── user-node.repository.impl.ts
-└── product-node.repository.impl.ts
-```
-
-## Paso 6 - Agregar Providers con sus Implementadores
-
-```
-src/app/
-└── app.config.ts
-```
-
-# Funcionamiento del Frontend
-
-## Ejecutar Frontend
-```
+```bash
 npm run start
 ```
 
-## Urls Consumo
+Accede a la aplicación integrada en: **`http://localhost:4200`**
 
-### Frontend
-```
-http://localhost:4200
-```
+### 3. Ejecutar pruebas unitarias y cobertura
 
-### Backend NodeJS
-```
-http://localhost:3000/api/docs
-http://localhost:3000/api/users/{countUsers}
-http://localhost:3000/api/products/{countProducts}
-```
-
-### Backend SpringBoot
-```
-http://localhost:3000/api/swagger-ui/index.html
-http://localhost:3000/api/users/{countUsers}
-http://localhost:3000/api/products/{countProducts}
+```bash
+npm run test:coverage
 ```
