@@ -1,0 +1,208 @@
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+thead {
+  background: #f5f7fa;
+}
+
+th {
+  padding: 1rem;
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-align: left;
+  text-transform: uppercase;
+  border-bottom: 1px solid #edf0f2;
+  white-space: nowrap;
+}
+
+td {
+  padding: 1rem;
+  border-top: 1px solid #edf0f2;
+  color: #374151;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.book-title-cell {
+  font-weight: 700;
+  color: #0f2b4d;
+}
+
+tbody tr {
+  transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+  background: #fafafa;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.genre-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  background: #eef3f8;
+  color: #315d84;
+}
+
+.genre-fantasy,
+.genre-science-fiction {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+.genre-non-fiction,
+.genre-biography,
+.genre-history {
+  background: #eef3f8;
+  color: #315d84;
+}
+
+.genre-romance {
+  background: #fce7f3;
+  color: #9d174d;
+}
+
+.genre-mystery {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.genre-self-help,
+.genre-children {
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: flex-start;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.action-btn:hover {
+  transform: scale(1.1);
+}
+
+.view-btn:hover {
+  background: #eef3f8;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  gap: 1rem;
+  color: #6b7280;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #0f2b4d;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty-state {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.empty-icon {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 3rem;
+}
+
+.empty-state h3 {
+  margin: 0 0 0.5rem;
+  color: #0f2b4d;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.25rem;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  th, td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .action-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .table-container {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  table {
+    font-size: 0.8rem;
+  }
+
+  th, td {
+    padding: 0.5rem 0.35rem;
+  }
+
+  .genre-badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+  }
+}
+

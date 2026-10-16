@@ -1,0 +1,54 @@
+<div class="table-container">
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando libros...</p>
+    </div>
+  } @else if (hasBooks()) {
+    <table>
+      <thead>
+        <tr>
+          @for (col of columns(); track col.key) {
+            <th [style.width]="col.width">{{ col.header }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (book of books(); track trackById($index, book)) {
+          <tr>
+            <td>#{{ book.id }}</td>
+            <td class="book-title-cell">{{ book.title }}</td>
+            <td>{{ book.publisher }}</td>
+            <td>{{ book.isbn }}</td>
+            <td>
+              <span class="genre-badge" [class]="getGenreClass(book)">
+                {{ book.genreIcon }} {{ book.genreLabel }}
+              </span>
+            </td>
+            <td>{{ book.languageLabel }}</td>
+            <td>{{ book.pages }}</td>
+            <td>{{ formatDate(book.publicationYear) }}</td>
+            <td>
+              <div class="table-actions">
+                <button
+                  class="action-btn view-btn"
+                  (click)="onViewDetail(book, $event)"
+                  title="Ver detalle"
+                  type="button">
+                  👁
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <div class="empty-state">
+      <span class="empty-icon">{{ emptyIcon() }}</span>
+      <h3>Sin libros</h3>
+      <p>{{ emptyMessage() }}</p>
+    </div>
+  }
+</div>
+

@@ -1,0 +1,88 @@
+<div class="library-page">
+  <header class="hero">
+    <div class="hero-content">
+      <span class="eyebrow">Biblioteca Universitaria</span>
+      <h1>Catálogo de Libros</h1>
+      <p>Explora, filtra por género literario y consulta los detalles de las obras disponibles en la biblioteca.</p>
+    </div>
+    <div class="hero-decoration">
+      <span>📚</span>
+    </div>
+  </header>
+
+  <section class="library-card">
+    <div class="card-heading">
+      <div class="heading-icon">🔎</div>
+      <div>
+        <span class="section-label">FILTROS Y CONSULTA</span>
+        <h2>Buscar y Filtrar Libros</h2>
+        <p>Filtra el catálogo por género literario o consulta directamente un libro por su ID.</p>
+      </div>
+    </div>
+
+    <div class="filters-bar">
+      <div class="field">
+        <label for="genre-select">Género literario</label>
+        <select
+          id="genre-select"
+          [ngModel]="selectedGenre"
+          (ngModelChange)="onGenreChange($event)">
+          <option value="">Todos los géneros</option>
+          @for (option of genreOptions; track option.value) {
+            <option [value]="option.value">{{ option.icon }} {{ option.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="search-id-group">
+        <div class="field">
+          <label for="book-id-input">Consultar por ID</label>
+          <input
+            id="book-id-input"
+            type="number"
+            min="1"
+            [(ngModel)]="searchId"
+            placeholder="Ej. 1"
+          />
+        </div>
+        <button
+          type="button"
+          class="primary-button"
+          (click)="onSearchById()"
+          [disabled]="!searchId || searchId < 1">
+          Ver Libro
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="library-card">
+    <div class="catalog-header">
+      <div class="card-heading">
+        <div class="heading-icon">📋</div>
+        <div>
+          <span class="section-label">LISTADO</span>
+          <h2>Libros Disponibles ({{ books.length }})</h2>
+          <p>Haz clic en el icono de detalle para consultar la sinopsis, portada y documento digital.</p>
+        </div>
+      </div>
+
+      <button type="button" class="secondary-button" (click)="loadBooks()">
+        ↻ Mostrar todos
+      </button>
+    </div>
+
+    @if (error) {
+      <app-alert type="error" [message]="error" />
+    }
+
+    <app-book-table
+      [books]="books"
+      [isLoading]="isLoading"
+      [emptyMessage]="'No se encontraron libros para el criterio seleccionado'"
+      [emptyIcon]="'📚'"
+      (viewDetail)="onViewDetail($event)"
+    />
+  </section>
+</div>
+

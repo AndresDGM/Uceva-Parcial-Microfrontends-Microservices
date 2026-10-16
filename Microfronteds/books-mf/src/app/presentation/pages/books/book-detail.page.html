@@ -1,0 +1,100 @@
+<div class="library-page">
+  <header class="hero">
+    <div class="hero-content">
+      <span class="eyebrow">Detalle de Libro</span>
+      <h1>{{ book ? book.title : 'Detalle del Libro' }}</h1>
+      <p>Información bibliográfica, sinopsis y recursos digitales de la obra seleccionada.</p>
+    </div>
+    <div class="hero-decoration">
+      <span>{{ book ? getGenreIcon(book.genre) : '📚' }}</span>
+    </div>
+  </header>
+
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando libro...</p>
+    </div>
+  } @else if (error) {
+    <app-alert type="error" [message]="error" />
+    <div class="form-actions">
+      <a routerLink="/books" class="secondary-button">Volver al Catálogo</a>
+    </div>
+  } @else if (book) {
+    <section class="library-card">
+      <div class="book-detail-layout">
+        <div class="book-cover-wrapper">
+          <img
+            [src]="book.coverImageUrl"
+            [alt]="book.title"
+            class="book-cover"
+          />
+        </div>
+
+        <div class="book-info">
+          <div class="card-heading">
+            <div class="heading-icon">{{ getGenreIcon(book.genre) }}</div>
+            <div>
+              <span class="section-label">{{ getGenreLabel(book.genre) }}</span>
+              <h2>{{ book.title }}</h2>
+              <p>Editorial: <strong>{{ book.publisher }}</strong></p>
+            </div>
+          </div>
+
+          <div class="book-synopsis">
+            <h3>Sinopsis</h3>
+            <p>{{ book.description }}</p>
+          </div>
+
+          <div class="book-details-grid">
+            <div>
+              <span>ID del Libro</span>
+              <strong>#{{ book.id }}</strong>
+            </div>
+            <div>
+              <span>Autor ID</span>
+              <strong>#{{ book.authorId }}</strong>
+            </div>
+            <div>
+              <span>ISBN</span>
+              <strong>{{ book.isbn }}</strong>
+            </div>
+            <div>
+              <span>Idioma</span>
+              <strong>{{ getLanguageLabel(book.language) }}</strong>
+            </div>
+            <div>
+              <span>Género</span>
+              <strong>{{ getGenreIcon(book.genre) }} {{ getGenreLabel(book.genre) }}</strong>
+            </div>
+            <div>
+              <span>Páginas</span>
+              <strong>{{ book.pages }} págs.</strong>
+            </div>
+            <div>
+              <span>Fecha de Publicación</span>
+              <strong>{{ formatDate(book.publicationYear) }}</strong>
+            </div>
+            <div>
+              <span>Editorial</span>
+              <strong>{{ book.publisher }}</strong>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            @if (book.pdfUrl) {
+              <a
+                [href]="book.pdfUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="primary-button">
+                📄 Abrir Documento PDF
+              </a>
+            }
+            <a routerLink="/books" class="secondary-button">Volver al Catálogo</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  }
+</div>
