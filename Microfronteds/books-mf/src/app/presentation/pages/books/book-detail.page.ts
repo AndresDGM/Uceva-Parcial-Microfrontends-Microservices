@@ -25,18 +25,28 @@ import {
   styleUrl: './book-detail.page.scss'
 })
 export class BookDetailPage implements OnInit {
+  /** Ruta activa inyectada para leer parámetros de navegación */
   private readonly route = inject(ActivatedRoute);
+  /** Caso de uso para consultar un libro por su ID */
   private readonly getBookByIdUseCase = inject(GetBookByIdUseCase);
 
+  /** Libro cargado actualmente */
   book: Book | null = null;
+  /** Estado de carga de la consulta */
   isLoading = false;
+  /** Mensaje de error en caso de fallo o libro inexistente */
   error: string | null = null;
+  /** Indica si ocurrió un error al cargar la imagen de portada */
   coverLoadError = false;
 
+  /** Mapa de etiquetas de géneros literarios en español */
   readonly genreLabels = BOOK_GENRE_LABELS;
+  /** Mapa de clases CSS por género literario */
   readonly genreClasses = BOOK_GENRE_CLASSES;
+  /** Mapa de etiquetas de idiomas en español */
   readonly languageLabels = BOOK_LANGUAGE_LABELS;
 
+  /** Inicializa la vista leyendo el parámetro id de la ruta */
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam && !isNaN(+idParam)) {

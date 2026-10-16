@@ -9,8 +9,11 @@ import {
  * Representa un elemento de libro enriquecido con etiquetas de presentación para el catálogo.
  */
 export interface BookTableRow extends Book {
+  /** Etiqueta en español del género literario */
   genreLabel: string;
+  /** Clase CSS para el estilo visual del género */
   genreClass: string;
+  /** Etiqueta en español del idioma de la edición */
   languageLabel: string;
 }
 
@@ -18,7 +21,9 @@ export interface BookTableRow extends Book {
  * Criterios de filtrado de libros en la vista de catálogo.
  */
 export interface BookFilter {
+  /** Género literario seleccionado para filtrar */
   genre?: Genre | '';
+  /** Identificador de libro para búsqueda puntual */
   id?: string | number;
 }
 

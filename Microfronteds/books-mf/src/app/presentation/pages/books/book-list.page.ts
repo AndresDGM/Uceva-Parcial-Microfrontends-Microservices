@@ -99,10 +99,12 @@ export class BookListPage implements OnInit, OnDestroy {
   /** Elemento que tenía el foco antes de abrir el modal */
   private previouslyFocusedElement: HTMLElement | null = null;
 
+  /** Inicializa el componente cargando el catálogo de libros */
   ngOnInit(): void {
     this.loadBooks();
   }
 
+  /** Libera el bloqueo de scroll del documento al destruir el componente */
   ngOnDestroy(): void {
     this.unlockBodyScroll();
   }
@@ -289,18 +291,21 @@ export class BookListPage implements OnInit, OnDestroy {
     });
   }
 
+  /** Guarda el elemento HTML con foco activo antes de abrir el modal */
   private saveActiveFocus(): void {
     if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
       this.previouslyFocusedElement = document.activeElement;
     }
   }
 
+  /** Traslada el foco del teclado al botón de cierre del modal */
   private focusModalCloseButton(): void {
     setTimeout(() => {
       this.modalCloseBtn?.nativeElement?.focus();
     }, 0);
   }
 
+  /** Restaura el foco al elemento que estaba activo antes de abrir el modal */
   private restorePreviousFocus(): void {
     if (this.previouslyFocusedElement) {
       setTimeout(() => {
@@ -310,12 +315,14 @@ export class BookListPage implements OnInit, OnDestroy {
     }
   }
 
+  /** Bloquea el desplazamiento vertical del documento de fondo */
   private lockBodyScroll(): void {
     if (typeof document !== 'undefined') {
       document.body.style.overflow = 'hidden';
     }
   }
 
+  /** Restaura el desplazamiento vertical del documento de fondo */
   private unlockBodyScroll(): void {
     if (typeof document !== 'undefined') {
       document.body.style.overflow = '';
