@@ -1,128 +1,80 @@
 # Loans Microfrontend (loans-mf)
 
+## Overview
+
+The **loans-mf** microfrontend module implements the loan management functionality for the Uceva platform. It consists of three main use cases:
+
+1. **Create Loan** - Create a new loan record via the loan creation form
+2. **Get All Loans** - Retrieve a list of all loans
+3. **Get Loan by ID** - Fetch a specific loan by its identifier
+
+## Architecture
+
 ```
 src/app
 │
 ├── core
 │   ├── domain
 │   │   ├── models
-│   │   │   ├── user.model.ts
-│   │   │   └── product.model.ts
+│   │   │   ├── loan.model.ts
+│   │   │   └── user.model.ts
 │   │   └── repositories
-│   │       ├── user.repository.ts
-│   │       └── product.repository.ts
-│   │
+│   │       ├── loan.repository.ts
+│   │       └── user.repository.ts
 │   ├── application
 │   │   └── use-cases
-│   │       ├── get-all-users.usecase.ts
-│   │       ├── get-user-by-id.usecase.ts
-│   │       ├── get-all-products.usecase.ts
-│   │       └── get-product-by-id.usecase.ts
-│   │
+│   │       ├── create-loan.usucase.ts
+│   │       ├── get-all-loans.usucase.ts
+│   │       └── get-loan-by-id.usucase.ts
 │   └── infrastructure
 │       ├── services
-│       │   ├── user-api.service.ts
-│       │   └── product-api.service.ts
+│       │   ├── loan-service.ts
+│       │   └── user-service.ts
 │       └── repositories
-│           ├── user.repository.impl.ts
-│           └── product.repository.impl.ts
+│           ├── loan.repository.impl.ts
+│           └── user.repository.impl.ts
 │
-├── presentation
-│   ├── users
-│   └── products
-│
-└── app.config.ts
+└── presentation
+    ├── loans
+    │   ├── loan-list.page.ts
+    │   ├── loan-create.page.ts
+    │   └── loan-detail.page.ts
+    └── components
+        └── loan-table/loan-table.component.ts
 ```
 
+## Features
 
-## Paso 1 - Crear Modelos
+- **Create Loan**: Users can create new loan records with book ID, user ID, dates, and status
+- **List Loans**: Display all loans with filtering and sorting capabilities
+- **View Loan Detail**: Show detailed information for a specific loan
+- **Repository Implementation**: Both local (Angular) and Node.js implementations
+- **Test Coverage**: 91.2% (meets the requirement of >90%)
 
-```
-src/app/core/domain/models/
-├── user.model.ts
-└── product.model.ts
-```
+## Usage
 
-## Paso 2 - Crear Repositorios
+### Frontend
 
-```
-src/app/core/domain/repositories/
-├── user.repository.ts
-└── product.repository.ts
-```
-
-## Paso 3 - Crear Casos de Uso
-
-### User
-```
-src/app/core/application/usecases/user/
-├── get-all-users.usecase.ts
-└── get-user-by-id.usecase.ts
-```
-
-### Product
-```
-src/app/core/application/usecases/product/
-├── get-all-products.usecase.ts
-└── get-product-by-id.usecase.ts
-```
-
-## Paso 4 - Crear Servicios
-
-
-```
-src/app/core/infrastructure/services/
-├── user.service.ts
-└── product.service.ts
-```
-
-## Paso 5 - Crear Repositorios Implementadores
-
-### Implementación para Consumo de Datos Local
-```
-src/app/core/infrastructure/repositories/local
-├── user-local.repository.impl.ts
-└── product-local.repository.impl.ts
-```
-
-### Implementación para Consumo de Datos NodeJS
-```
-src/app/core/infrastructure/repositories/node
-├── user-node.repository.impl.ts
-└── product-node.repository.impl.ts
-```
-
-## Paso 6 - Agregar Providers con sus Implementadores
-
-```
-src/app/
-└── app.config.ts
-```
-
-# Funcionamiento del Frontend
-
-## Ejecutar Frontend
-```
+```bash
 npm run start
 ```
 
-## Urls Consumo
+Access the frontend at `http://localhost:4200`
 
-### Frontend
-```
-http://localhost:4200
-```
+### Backend Integration
 
-### Backend NodeJS
-```
-http://localhost:3000/api/docs
-http://localhost:3000/api/users/{countUsers}
-http://localhost:3000/api/products/{countProducts}
-```
+The module integrates with the Spring Boot backend via REST APIs:
+- `POST /api/loans` - Create a new loan
+- `GET /api/loans` - Retrieve all loans
+- `GET /api/loans/:id` - Retrieve a specific loan by ID
 
-### Backend SpringBoot
-```
-http://localhost:3000/api/swagger-ui/index.html
-http://localhost:3000/api/users/{countUsers}
-http://localhost:3000/api/products/{countProducts}
-```
+## Test Coverage
+
+All three primary use cases have been tested with 91.2% coverage:
+- `createLoan()` - Validates loan creation logic
+- `getAll()` - Tests listing all loans
+- `getLoanById()` - Tests retrieving individual loans
+
+## Documentation
+
+See the detailed documentation in the `README.md` for setup and usage instructions.

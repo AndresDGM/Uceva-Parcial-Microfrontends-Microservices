@@ -1,0 +1,105 @@
+<div class="library-page">
+  <header class="hero">
+    <div class="hero-content">
+      <span class="eyebrow">Gestión de Préstamos</span>
+      <h1>Nuevo Préstamo</h1>
+      <p>Registra un nuevo préstamo en el sistema de la biblioteca.</p>
+    </div>
+    <div class="hero-decoration">
+      <span>➕</span>
+    </div>
+  </header>
+
+  <section class="library-card">
+    <div class="card-heading">
+      <div class="heading-icon">📝</div>
+      <div>
+        <span class="section-label">FORMULARIO</span>
+        <h2>Datos del Préstamo</h2>
+        <p>Completa los campos obligatorios para crear el préstamo.</p>
+      </div>
+    </div>
+
+    @if (error) {
+      <app-alert type="error" [message]="error" />
+    }
+
+    @if (success) {
+      <app-alert type="success" message="Préstamo creado correctamente. Redirigiendo..." />
+    }
+
+    <form [formGroup]="loanForm" (ngSubmit)="onSubmit()" class="form-grid">
+      <div class="field">
+        <label for="bookId">ID del Libro *</label>
+        <input
+          type="number"
+          id="bookId"
+          formControlName="bookId"
+          min="1"
+          placeholder="Ej: 101"
+          [class.ng-invalid]="loanForm.get('bookId')?.invalid && loanForm.get('bookId')?.touched" />
+        @if (loanForm.get('bookId')?.invalid && loanForm.get('bookId')?.touched) {
+          <small class="text-danger">El ID del libro es obligatorio</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="userId">ID del Usuario *</label>
+        <input
+          type="number"
+          id="userId"
+          formControlName="userId"
+          min="1"
+          placeholder="Ej: 201"
+          [class.ng-invalid]="loanForm.get('userId')?.invalid && loanForm.get('userId')?.touched" />
+        @if (loanForm.get('userId')?.invalid && loanForm.get('userId')?.touched) {
+          <small class="text-danger">El ID del usuario es obligatorio</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="loanDate">Fecha de Préstamo *</label>
+        <input
+          type="date"
+          id="loanDate"
+          formControlName="loanDate"
+          [class.ng-invalid]="loanForm.get('loanDate')?.invalid && loanForm.get('loanDate')?.touched" />
+        @if (loanForm.get('loanDate')?.invalid && loanForm.get('loanDate')?.touched) {
+          <small class="text-danger">La fecha de préstamo es obligatoria</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="returnDate">Fecha de Devolución *</label>
+        <input
+          type="date"
+          id="returnDate"
+          formControlName="returnDate"
+          [class.ng-invalid]="loanForm.get('returnDate')?.invalid && loanForm.get('returnDate')?.touched" />
+        @if (loanForm.get('returnDate')?.invalid && loanForm.get('returnDate')?.touched) {
+          <small class="text-danger">La fecha de devolución es obligatoria</small>
+        }
+      </div>
+
+      <div class="field small-field">
+        <label for="status">Estado *</label>
+        <select id="status" formControlName="status">
+          @for (status of statusOptions; track status) {
+            <option [value]="status">{{ status }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="secondary-button" (click)="goBack()">Cancelar</button>
+        <button type="submit" class="primary-button" [disabled]="isSubmitting">
+          @if (isSubmitting) {
+            <span class="spinner-small"></span> Creando...
+          } @else {
+            Crear Préstamo
+          }
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

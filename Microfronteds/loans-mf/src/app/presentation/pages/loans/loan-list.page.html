@@ -1,0 +1,51 @@
+<div class="library-page">
+  <header class="hero">
+    <div class="hero-content">
+      <span class="eyebrow">Gestión de Préstamos</span>
+      <h1>Catálogo de Préstamos</h1>
+      <p>Visualiza, crea y gestiona todos los préstamos de la biblioteca.</p>
+    </div>
+    <div class="hero-decoration">
+      <span>📚</span>
+    </div>
+  </header>
+
+  <section class="library-card">
+    <div class="card-heading">
+      <div class="heading-icon">📋</div>
+      <div>
+        <span class="section-label">LISTADO</span>
+        <h2>Todos los Préstamos</h2>
+        <p>Lista completa de préstamos registrados en el sistema.</p>
+      </div>
+    </div>
+
+    @if (error) {
+      <app-alert type="error" [message]="error" />
+    }
+
+    <app-loan-table
+      [loans]="loans"
+      [isLoading]="isLoading"
+      [emptyMessage]="'No hay préstamos registrados en el sistema'"
+      [emptyIcon]="'📚'"
+      (viewDetail)="onViewDetail($event)"
+      (edit)="onEdit($event)"
+      (delete)="onDelete($event)"
+    />
+  </section>
+
+  <section class="library-card">
+    <div class="card-heading">
+      <div class="heading-icon">➕</div>
+      <div>
+        <span class="section-label">ACCIONES</span>
+        <h2>Crear Nuevo Préstamo</h2>
+        <p>Registra un nuevo préstamo en el sistema.</p>
+      </div>
+    </div>
+    <div class="form-actions">
+      <a routerLink="/loans/create" class="primary-button">Nuevo Préstamo</a>
+    </div>
+  </section>
+</div>
