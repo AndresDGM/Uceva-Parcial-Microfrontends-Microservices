@@ -8,6 +8,7 @@ import { environment } from '../../../../environments/environment';
 describe('LoanApiService', () => {
   let service: LoanApiService;
   let httpMock: HttpTestingController;
+  const apiUrl = `${environment.baseUrlSpringBoot}/api/loans`;
 
   const loan: Loan = {
     id: 1,
@@ -38,50 +39,95 @@ describe('LoanApiService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('debe crear un préstamo vía POST', () => {
-    service.create(loan).subscribe(result => {
-      expect(result).toEqual(loan);
+  describe('create', () => {
+    it('debe crear un préstamo vía POST', (done) => {
+      service.create(loan).subscribe(result => {
+        expect(result).toEqual(loan);
+        done();
+      });
+
+      const req = httpMock.expectOne(apiUrl);
+      expect(req.request.method).toBe('POST');
+      req.flush(loan);
     });
 
-    const req = httpMock.expectOne(`${environment.baseUrlSpringBoot}/api/loans`);
-    expect(req.request.method).toBe('POST');
-    req.flush(loan);
+    it('debe manejar el error cuando falla la creación (líneas 56-57)', (done) => {
+      service.create(loan).subscribe({
+        next: () => done.fail('No debería emitir un valor'),
+        error: (error) => {
+          expect(error.message).toBe('Failed to create loan');
+          done();
+        }
+      });
+
+      const req = httpMock.expectOne(apiUrl);
+      req.flush('Server Error', { status: 500, statusText: 'Server Error' });
+    });
   });
 
-  it('debe obtener todos los préstamos vía GET', () => {
-    const loans = [loan];
+  describe('getAll', () => {
+    it('debe obtener todos los préstamos vía GET', (done) => {
+      const loans = [loan];
 
-    service.getAll().subscribe(result => {
-      expect(result.length).toBe(1);
-      expect(result).toEqual(loans);
+      service.getAll().subscribe(result => {
+        expect(result.length).toBe(1);
+        expect(result).toEqual(loans);
+        done();
+      });
+
+      const req = httpMock.expectOne(apiUrl);
+      expect(req.request.method).toBe('GET');
+      req.flush(loans);
     });
 
-    const req = httpMock.expectOne(`${environment.baseUrlSpringBoot}/api/loans`);
-    expect(req.request.method).toBe('GET');
-    req.flush(loans);
+    it('debe manejar el error cuando falla getAll (líneas 81-82)', (done) => {
+      service.getAll().subscribe({
+        next: () => done.fail('No debería emitir un valor'),
+        error: (error) => {
+          expect(error.message).toBe('Failed to fetch loans');
+          done();
+        }
+      });
+
+      const req = httpMock.expectOne(apiUrl);
+      req.flush('Server Error', { status: 500, statusText: 'Server Error' });
+    });
   });
 
-  it('debe obtener un préstamo por ID vía GET', () => {
-    service.getById(1).subscribe(result => {
-      expect(result).toEqual(loan);
+  describe('getById', () => {
+    it('debe obtener un préstamo por ID vía GET', (done) => {
+      service.getById(1).subscribe(result => {
+        expect(result).toEqual(loan);
+        done();
+      });
+
+      const req = httpMock.expectOne(`${apiUrl}/1`);
+      expect(req.request.method).toBe('GET');
+      req.flush(loan);
     });
 
-    const req = httpMock.expectOne(`${environment.baseUrlSpringBoot}/api/loans/1`);
-    expect(req.request.method).toBe('GET');
-    req.flush(loan);
-  });
+    it('debe retornar null cuando el préstamo no existe (404)', (done) => {
+      service.getById(999).subscribe(result => {
+        expect(result).toBeNull();
+        done();
+      });
 
-  it('debe retornar null cuando el préstamo no existe (404)', () => {
-    let result: Loan | null = loan;
-
-    service.getById(999).subscribe(r => {
-      result = r;
+      const req = httpMock.expectOne(`${apiUrl}/999`);
+      expect(req.request.method).toBe('GET');
+      req.flush(null, { status: 404, statusText: 'Not Found' });
     });
 
-    const req = httpMock.expectOne(`${environment.baseUrlSpringBoot}/api/loans/999`);
-    expect(req.request.method).toBe('GET');
-    req.flush(null, { status: 404, statusText: 'Not Found' });
+    it('debe manejar el error cuando falla getById con error distinto a 404 (líneas 115-116)', (done) => {
+      service.getById(1).subscribe({
+        next: () => done.fail('No debería emitir un valor'),
+        error: (error) => {
+          expect(error.message).toBe('Failed to fetch loan');
+          done();
+        }
+      });
 
-    expect(result).toBeNull();
+      const req = httpMock.expectOne(`${apiUrl}/1`);
+      req.flush('Server Error', { status: 500, statusText: 'Server Error' });
+    });
   });
 });
