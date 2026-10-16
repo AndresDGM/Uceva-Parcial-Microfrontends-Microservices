@@ -32,5 +32,5 @@ export const environment = {
    * las peticiones HTTP hacia la API.
    *
    */
-  baseUrlSpringBoot: 'http://localhost:8080',
+  baseUrlSpringBoot: 'http://localhost:8081',
 };
