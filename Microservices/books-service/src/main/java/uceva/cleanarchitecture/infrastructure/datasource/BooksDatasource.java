@@ -7,14 +7,12 @@ import java.util.Random;
 import com.github.javafaker.Faker;
 
 import uceva.cleanarchitecture.domain.entity.Book;
+import uceva.cleanarchitecture.domain.entity.Genre;
+import uceva.cleanarchitecture.domain.entity.Language;
 
 public class BooksDatasource {
     private Faker faker = new Faker();
     private final Random random = new Random();
-    private final String[] genres = { "Fiction", "Non-Fiction", "Mystery", "Romance", "Science Fiction", "Fantasy",
-            "Biography", "History", "Self-Help", "Children's" };
-    private final String[] languages = { "English", "Spanish", "French", "German", "Italian", "Portuguese",
-            "Chinese", "Japanese", "Korean", "Russian" };
     private final String[] publishers = { "Penguin Random House", "HarperCollins", "Simon & Schuster",
             "Hachette Book Group", "Macmillan Publishers", "Scholastic", "Oxford University Press",
             "Cambridge University Press", "Wiley", "Springer" };
@@ -50,8 +48,8 @@ public class BooksDatasource {
         int pages = random.nextInt(1000) + 50;
         String description = faker.lorem().paragraph();
         String title = faker.book().title();
-        String genre = genres[random.nextInt(genres.length)];
-        String language = languages[random.nextInt(languages.length)];
+        Genre genre = Genre.values()[random.nextInt(Genre.values().length)];
+        Language language = Language.values()[random.nextInt(Language.values().length)];
         String publisher = publishers[random.nextInt(publishers.length)];
         String isbn = isbns[random.nextInt(isbns.length)];
         String coverImageUrl = coverImageUrls[random.nextInt(coverImageUrls.length)];
