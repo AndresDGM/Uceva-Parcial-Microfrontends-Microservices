@@ -114,8 +114,8 @@ src/main/java/uceva/cleanarchitecture/
 
 ## 🌐 Configuración CORS
 
-El microservicio permite el consumo desde microfrontends en Angular mediante la configuración en `CorsConfig`:
-- **Orígenes permitidos:** `http://localhost:4200`
+El microservicio permite el consumo desde el host y el microfrontend de libros en Angular mediante la configuración en `CorsConfig`:
+- **Orígenes permitidos:** `http://localhost:4200` (Host), `http://localhost:4202` (`books-mf`)
 - **Métodos permitidos:** `GET`, `POST`, `PUT`, `DELETE`, `OPTIONS`
 - **Credenciales:** Habilitadas (`allowCredentials = true`)
 
