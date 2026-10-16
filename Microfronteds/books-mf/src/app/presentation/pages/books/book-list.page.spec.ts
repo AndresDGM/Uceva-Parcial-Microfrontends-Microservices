@@ -26,7 +26,11 @@ describe('BookListPage', () => {
         { provide: GetAllBooksByGenreUseCase, useValue: getAllBooksByGenreUseCase },
         { provide: GetBookByIdUseCase, useValue: getBookByIdUseCase }
       ]
-    }).compileComponents();
+    })
+      .overrideComponent(BookListPage, {
+        set: { providers: [] }
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(BookListPage);
     component = fixture.componentInstance;

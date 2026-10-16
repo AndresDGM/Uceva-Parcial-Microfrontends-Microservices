@@ -32,7 +32,11 @@ describe('App', () => {
         icon: 'bootstrap',
         size: 2
       },
-      navLinks: []
+      navLinks: [
+        { text: 'Usuarios', url: '/users' },
+        { text: 'Libros', url: '/books' },
+        { text: 'Préstamos', url: '/loans' }
+      ]
     });
   });
 

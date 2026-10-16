@@ -14,6 +14,8 @@ import { AlertComponent, AlertType } from '../../components/alert/alert.componen
 import { BookTableRow, mapBooksToTableRows, mapBookToTableRow } from '../../interfaces/book.interface';
 import { GENRE_OPTIONS } from '../../interfaces/book-genre.interface';
 import { Genre } from '../../../core/domain/models/book.model';
+import { BOOK_REPOSITORY_TOKEN } from '../../../core/domain/repositories/book-repository.token';
+import { BookSpringbootRepositoryImpl } from '../../../core/infrastructure/repositories/springboot-implementation/book-springboot.repository.impl';
 import { GetAllBooksUseCase } from '../../../core/application/use-cases/book/get-all-books.usecase';
 import { GetAllBooksByGenreUseCase } from '../../../core/application/use-cases/book/get-all-books-by-genre.usecase';
 import { GetBookByIdUseCase } from '../../../core/application/use-cases/book/get-book-by-id.usecase';
@@ -25,11 +27,20 @@ import { GetBookByIdUseCase } from '../../../core/application/use-cases/book/get
  * Consume los casos de uso `GetAllBooksUseCase`, `GetAllBooksByGenreUseCase` y
  * `GetBookByIdUseCase` para presentar el catálogo en una cuadrícula de tarjetas
  * y mostrar el detalle completo en una ventana flotante accesible.
+ *
+ * Se expone como `BooksPage` en Module Federation para ser consumida
+ * por el host.
  */
 @Component({
   selector: 'app-book-list',
   standalone: true,
   imports: [CommonModule, FormsModule, BookTableComponent, AlertComponent],
+  providers: [
+    { provide: BOOK_REPOSITORY_TOKEN, useClass: BookSpringbootRepositoryImpl },
+    GetAllBooksUseCase,
+    GetAllBooksByGenreUseCase,
+    GetBookByIdUseCase
+  ],
   templateUrl: './book-list.page.html',
   styleUrl: './book-list.page.scss'
 })
@@ -311,3 +322,6 @@ export class BookListPage implements OnInit, OnDestroy {
     }
   }
 }
+
+export { BookListPage as BooksPage };
+
