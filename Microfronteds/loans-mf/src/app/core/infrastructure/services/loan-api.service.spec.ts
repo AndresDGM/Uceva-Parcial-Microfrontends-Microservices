@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { LoanApiService } from './loan-api.service';
 import { Loan } from '../../domain/models/loan.model';
 import { environment } from '../../../../environments/environment';
@@ -19,10 +20,12 @@ describe('LoanApiService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [LoanApiService]
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        LoanApiService
+      ],
     });
-
     service = TestBed.inject(LoanApiService);
     httpMock = TestBed.inject(HttpTestingController);
   });
@@ -76,7 +79,9 @@ describe('LoanApiService', () => {
     });
 
     const req = httpMock.expectOne(`${environment.baseUrlSpringBoot}/api/loans/999`);
-    req.flush({ status: 404, statusText: 'Not Found' });
+    expect(req.request.method).toBe('GET');
+    req.flush(null, { status: 404, statusText: 'Not Found' });
+
     expect(result).toBeNull();
   });
 });

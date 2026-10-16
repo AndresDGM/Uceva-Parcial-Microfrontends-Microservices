@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { firstValueFrom, of, throwError } from 'rxjs';
 import { CreateLoanUseCase } from './create-loan.usecase';
-import { LoanRepository } from '../../domain/repositories/loan.repository';
-import { Loan } from '../../domain/models/loan.model';
+import { LoanRepository } from '../../../domain/repositories/loan.repository';
+import { LOAN_REPOSITORY_TOKEN } from '../../../domain/repositories/loan-repository.token';
+import { Loan } from '../../../domain/models/loan.model';
 
 describe('CreateLoanUseCase', () => {
   let useCase: CreateLoanUseCase;
-  let loanRepository: jasmine.SpyObj<LoanRepository>;
 
   const newLoan: Omit<Loan, 'id'> = {
     bookId: 101,
@@ -17,47 +17,42 @@ describe('CreateLoanUseCase', () => {
   };
 
   const createdLoan: Loan = { id: 1, ...newLoan };
+  const LoanRepositoryMock: jest.Mocked<LoanRepository> = { create: jest.fn(), getAll: jest.fn(), getById: jest.fn() };
 
-  beforeEach(() => {
-    loanRepository = jasmine.createSpyObj('LoanRepository', ['create', 'getAll', 'getById']);
-
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       providers: [
         CreateLoanUseCase,
-        { provide: LoanRepository, useValue: loanRepository }
+        { provide: LOAN_REPOSITORY_TOKEN, useValue: LoanRepositoryMock }
       ]
-    });
+    }).compileComponents();
 
     useCase = TestBed.inject(CreateLoanUseCase);
   });
 
   it('debe crearse correctamente', () => {
-    expect(useCase).toBeTruthy();
+    expect(useCase).toBeInstanceOf(CreateLoanUseCase);
   });
 
-  it('debe crear un préstamo delegando en el repositorio', () => {
-    loanRepository.create.and.returnValue(of(createdLoan));
+  it('debe crear un préstamo delegando en el repositorio', async () => {
+    LoanRepositoryMock.create.mockReturnValue(of(createdLoan));
 
-    let result: Loan | undefined;
-    useCase.execute(newLoan).subscribe(loan => {
-      result = loan;
-    });
+    const result = await firstValueFrom(useCase.execute(newLoan));
 
-    expect(loanRepository.create).toHaveBeenCalledWith(newLoan);
+    expect(LoanRepositoryMock.create).toHaveBeenCalledTimes(1);
+    expect(LoanRepositoryMock.create).toHaveBeenCalledWith(newLoan);
     expect(result).toEqual(createdLoan);
-    expect(result?.id).toBe(1);
+    expect(result.id).toBe(1);
   });
 
-  it('debe propagar el error cuando el repositorio falla', () => {
-    loanRepository.create.and.returnValue(throwError(() => new Error('Failed to create loan')));
+  it('debe propagar el error cuando el repositorio falla', async () => {
+    const errorMessage = 'Failed to create loan';
+    LoanRepositoryMock.create.mockReturnValue(throwError(() => new Error(errorMessage)));
 
-    let error: Error | undefined;
-    useCase.execute(newLoan).subscribe({
-      error: err => {
-        error = err;
-      }
-    });
+    const result = useCase.execute(newLoan);
+    await expect(firstValueFrom(result)).rejects.toThrow(errorMessage);
 
-    expect(error?.message).toBe('Failed to create loan');
+    expect(LoanRepositoryMock.create).toHaveBeenCalledTimes(1);
+    expect(LoanRepositoryMock.create).toHaveBeenCalledWith(newLoan);
   });
 });

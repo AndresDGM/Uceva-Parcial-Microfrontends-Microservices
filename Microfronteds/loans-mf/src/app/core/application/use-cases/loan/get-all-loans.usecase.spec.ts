@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { of, throwError, firstValueFrom } from 'rxjs';
+import { firstValueFrom, of, throwError } from 'rxjs';
 import { GetAllLoansUseCase } from './get-all-loans.usecase';
-import { LoanRepository } from '../../domain/repositories/loan.repository';
-import { Loan } from '../../domain/models/loan.model';
+import { LoanRepository } from '../../../domain/repositories/loan.repository';
+import { LOAN_REPOSITORY_TOKEN } from '../../../domain/repositories/loan-repository.token';
+import { Loan } from '../../../domain/models/loan.model';
 
 describe('GetAllLoansUseCase', () => {
   let useCase: GetAllLoansUseCase;
-  let loanRepository: jasmine.SpyObj<LoanRepository>;
 
   const loans: Loan[] = [
     { id: 1, bookId: 101, userId: 201, loanDate: '2026-10-01', returnDate: '2026-10-15', status: 'ACTIVE' },
@@ -14,35 +14,35 @@ describe('GetAllLoansUseCase', () => {
     { id: 3, bookId: 103, userId: 203, loanDate: '2026-08-15', returnDate: '2026-08-29', status: 'RETURNED' }
   ];
 
-  beforeEach(() => {
-    loanRepository = jasmine.createSpyObj('LoanRepository', ['create', 'getAll', 'getById']);
+  const LoanRepositoryMock: jest.Mocked<LoanRepository> = { create: jest.fn(), getAll: jest.fn(), getById: jest.fn() };
 
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       providers: [
         GetAllLoansUseCase,
-        { provide: LoanRepository, useValue: loanRepository }
+        { provide: LOAN_REPOSITORY_TOKEN, useValue: LoanRepositoryMock }
       ]
-    });
+    }).compileComponents();
 
     useCase = TestBed.inject(GetAllLoansUseCase);
   });
 
   it('debe crearse correctamente', () => {
-    expect(useCase).toBeTruthy();
+    expect(useCase).toBeInstanceOf(GetAllLoansUseCase);
   });
 
   it('debe obtener todos los préstamos del repositorio', async () => {
-    loanRepository.getAll.and.returnValue(of(loans));
+    LoanRepositoryMock.getAll.mockReturnValue(of(loans));
 
     const result = await firstValueFrom(useCase.execute());
 
-    expect(loanRepository.getAll).toHaveBeenCalled();
+    expect(LoanRepositoryMock.getAll).toHaveBeenCalledTimes(1);
     expect(result.length).toBe(3);
     expect(result).toEqual(loans);
   });
 
   it('debe retornar una lista vacía cuando no hay préstamos', async () => {
-    loanRepository.getAll.and.returnValue(of([]));
+    LoanRepositoryMock.getAll.mockReturnValue(of([]));
 
     const result = await firstValueFrom(useCase.execute());
 
@@ -50,8 +50,12 @@ describe('GetAllLoansUseCase', () => {
   });
 
   it('debe propagar el error cuando el repositorio falla', async () => {
-    loanRepository.getAll.and.returnValue(throwError(() => new Error('Failed to fetch loans')));
+    const errorMessage = 'Failed to fetch loans';
+    LoanRepositoryMock.getAll.mockReturnValue(throwError(() => new Error(errorMessage)));
 
-    await expect(firstValueFrom(useCase.execute())).rejects.toThrow('Failed to fetch loans');
+    const result = useCase.execute();
+    await expect(firstValueFrom(result)).rejects.toThrow(errorMessage);
+
+    expect(LoanRepositoryMock.getAll).toHaveBeenCalledTimes(1);
   });
 });

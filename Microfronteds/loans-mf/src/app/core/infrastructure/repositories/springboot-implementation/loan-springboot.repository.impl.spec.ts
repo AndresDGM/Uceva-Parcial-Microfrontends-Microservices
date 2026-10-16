@@ -1,12 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-import { of, throwError, firstValueFrom } from 'rxjs';
+import { firstValueFrom, of, throwError } from 'rxjs';
 import { LoanSpringbootRepositoryImpl } from './loan-springboot.repository.impl';
 import { LoanApiService } from '../../services/loan-api.service';
 import { Loan } from '../../../domain/models/loan.model';
 
 describe('LoanSpringbootRepositoryImpl', () => {
   let repository: LoanSpringbootRepositoryImpl;
-  let apiService: jasmine.SpyObj<LoanApiService>;
 
   const loan: Loan = {
     id: 1,
@@ -17,52 +16,58 @@ describe('LoanSpringbootRepositoryImpl', () => {
     status: 'ACTIVE'
   };
 
-  beforeEach(() => {
-    apiService = jasmine.createSpyObj('LoanApiService', ['create', 'getAll', 'getById']);
+  const LoanApiServiceMock: jest.Mocked<LoanApiService> = {
+    create: jest.fn(),
+    getAll: jest.fn(),
+    getById: jest.fn()
+  };
 
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       providers: [
         LoanSpringbootRepositoryImpl,
-        { provide: LoanApiService, useValue: apiService }
+        { provide: LoanApiService, useValue: LoanApiServiceMock }
       ]
-    });
+    }).compileComponents();
 
     repository = TestBed.inject(LoanSpringbootRepositoryImpl);
   });
 
   it('debe crearse correctamente', () => {
-    expect(repository).toBeTruthy();
+    expect(repository).toBeInstanceOf(LoanSpringbootRepositoryImpl);
   });
 
   it('debe delegar create en el servicio API', async () => {
-    apiService.create.and.returnValue(of(loan));
+    LoanApiServiceMock.create.mockReturnValue(of(loan));
 
     const result = await firstValueFrom(repository.create(loan));
 
-    expect(apiService.create).toHaveBeenCalledWith(loan);
+    expect(LoanApiServiceMock.create).toHaveBeenCalledTimes(1);
+    expect(LoanApiServiceMock.create).toHaveBeenCalledWith(loan);
     expect(result).toEqual(loan);
   });
 
   it('debe delegar getAll en el servicio API', async () => {
-    apiService.getAll.and.returnValue(of([loan]));
+    LoanApiServiceMock.getAll.mockReturnValue(of([loan]));
 
     const result = await firstValueFrom(repository.getAll());
 
-    expect(apiService.getAll).toHaveBeenCalled();
+    expect(LoanApiServiceMock.getAll).toHaveBeenCalledTimes(1);
     expect(result).toEqual([loan]);
   });
 
   it('debe delegar getById en el servicio API', async () => {
-    apiService.getById.and.returnValue(of(loan));
+    LoanApiServiceMock.getById.mockReturnValue(of(loan));
 
     const result = await firstValueFrom(repository.getById(1));
 
-    expect(apiService.getById).toHaveBeenCalledWith(1);
+    expect(LoanApiServiceMock.getById).toHaveBeenCalledTimes(1);
+    expect(LoanApiServiceMock.getById).toHaveBeenCalledWith(1);
     expect(result).toEqual(loan);
   });
 
   it('debe retornar null cuando el préstamo no existe', async () => {
-    apiService.getById.and.returnValue(of(null));
+    LoanApiServiceMock.getById.mockReturnValue(of(null));
 
     const result = await firstValueFrom(repository.getById(999));
 
@@ -70,8 +75,12 @@ describe('LoanSpringbootRepositoryImpl', () => {
   });
 
   it('debe propagar el error del servicio API', async () => {
-    apiService.getAll.and.returnValue(throwError(() => new Error('Failed to fetch loans')));
+    const errorMessage = 'Failed to fetch loans';
+    LoanApiServiceMock.getAll.mockReturnValue(throwError(() => new Error(errorMessage)));
 
-    await expect(firstValueFrom(repository.getAll())).rejects.toThrow('Failed to fetch loans');
+    const result = repository.getAll();
+    await expect(firstValueFrom(result)).rejects.toThrow(errorMessage);
+
+    expect(LoanApiServiceMock.getAll).toHaveBeenCalledTimes(1);
   });
 });

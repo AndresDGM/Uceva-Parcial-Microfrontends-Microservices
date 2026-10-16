@@ -68,7 +68,8 @@ export class LoanDetailPage implements OnInit {
 
   formatDate(dateStr: string): string {
     if (!dateStr) return '-';
-    const date = new Date(dateStr);
+    const date = new Date(`${dateStr}T00:00:00`);
+    if (isNaN(date.getTime())) return '-';
     return date.toLocaleDateString('es-ES', {
       day: '2-digit',
       month: '2-digit',

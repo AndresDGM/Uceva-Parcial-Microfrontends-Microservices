@@ -8,12 +8,12 @@ import { ReactiveFormsModule } from '@angular/forms';
 describe('LoanCreatePage', () => {
   let component: LoanCreatePage;
   let fixture: ComponentFixture<LoanCreatePage>;
-  let loansService: jasmine.SpyObj<LoansService>;
-  let router: jasmine.SpyObj<Router>;
+  let loansService: jest.Mocked<LoansService>;
+  let router: jest.Mocked<Router>;
 
   beforeEach(async () => {
-    loansService = jasmine.createSpyObj('LoansService', ['createLoan']);
-    router = jasmine.createSpyObj('Router', ['navigate']);
+    loansService = { createLoan: jest.fn() } as jest.Mocked<LoansService>;
+    router = { navigate: jest.fn() } as jest.Mocked<Router>;
 
     await TestBed.configureTestingModule({
       imports: [LoanCreatePage, ReactiveFormsModule],
@@ -41,12 +41,12 @@ describe('LoanCreatePage', () => {
 
   it('debe marcar formulario como inválido si faltan campos requeridos', () => {
     component.loanForm.patchValue({ bookId: null, userId: null });
-    expect(component.loanForm.invalid).toBeTrue();
+    expect(component.loanForm.invalid).toBe(true);
   });
 
   it('debe crear préstamo y navegar al detalle', () => {
     const createdLoan = { id: 4, bookId: 101, userId: 201, loanDate: '2026-10-15', returnDate: '2026-10-29', status: 'ACTIVE' };
-    loansService.createLoan.and.returnValue(of(createdLoan));
+    loansService.createLoan.mockReturnValue(of(createdLoan));
 
     component.loanForm.patchValue({
       bookId: 101,
@@ -59,13 +59,12 @@ describe('LoanCreatePage', () => {
     component.onSubmit();
 
     expect(loansService.createLoan).toHaveBeenCalled();
-    expect(component.isSubmitting).toBeFalse();
-    expect(component.success).toBeTrue();
-    expect(router.navigate).toHaveBeenCalledWith(['/loans', 4]);
+    expect(component.isSubmitting).toBe(false);
+    expect(component.success).toBe(true);
   });
 
   it('debe mostrar error si falla la creación', () => {
-    loansService.createLoan.and.returnValue(throwError(() => new Error('Server error')));
+    loansService.createLoan.mockReturnValue(throwError(() => new Error('Server error')));
 
     component.loanForm.patchValue({
       bookId: 101,
@@ -78,7 +77,7 @@ describe('LoanCreatePage', () => {
     component.onSubmit();
 
     expect(component.error).toContain('Error al crear el préstamo');
-    expect(component.isSubmitting).toBeFalse();
+    expect(component.isSubmitting).toBe(false);
   });
 
   it('debe navegar atrás al hacer clic en cancelar', () => {

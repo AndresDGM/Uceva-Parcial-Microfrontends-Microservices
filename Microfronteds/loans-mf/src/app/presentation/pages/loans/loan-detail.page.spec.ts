@@ -1,100 +1,87 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { LoanDetailPage } from './loan-detail.page';
+import { LoanCreatePage } from './loan-create.page';
 import { LoansService } from '../../services/loans/loans.service';
-import { ActivatedRoute } from '@angular/router';
-import { Loan } from '../../../core/domain/models/loan.model';
+import { Router, ActivatedRoute } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
 
-describe('LoanDetailPage', () => {
-  let component: LoanDetailPage;
-  let fixture: ComponentFixture<LoanDetailPage>;
-  let loansService: jasmine.SpyObj<LoansService>;
-
-  const mockLoan: Loan = {
-    id: 1,
-    bookId: 101,
-    userId: 201,
-    loanDate: '2026-10-01',
-    returnDate: '2026-10-15',
-    status: 'ACTIVE'
-  };
+describe('LoanCreatePage', () => {
+  let component: LoanCreatePage;
+  let fixture: ComponentFixture<LoanCreatePage>;
+  let loansService: jest.Mocked<LoansService>;
+  let router: jest.Mocked<Router>;
 
   beforeEach(async () => {
-    loansService = jasmine.createSpyObj('LoansService', ['getLoanById']);
+    loansService = { createLoan: jest.fn() } as jest.Mocked<LoansService>;
+    router = { navigate: jest.fn() } as jest.Mocked<Router>;
 
     await TestBed.configureTestingModule({
-      imports: [LoanDetailPage],
+      imports: [LoanCreatePage, ReactiveFormsModule],
       providers: [
         { provide: LoansService, useValue: loansService },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              paramMap: {
-                get: (key: string) => key === 'id' ? '1' : null
-              }
-            }
-          }
-        }
+        { provide: Router, useValue: router },
+        { provide: ActivatedRoute, useValue: {} }
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(LoanDetailPage);
+    fixture = TestBed.createComponent(LoanCreatePage);
     component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('debe crearse correctamente', () => {
     expect(component).toBeTruthy();
   });
 
-  it('debe cargar préstamo al inicializar con ID válido', () => {
-    loansService.getLoanById.and.returnValue(of(mockLoan));
-
-    fixture.detectChanges();
-
-    expect(loansService.getLoanById).toHaveBeenCalledWith(1);
-    expect(component.loan).toEqual(mockLoan);
-    expect(component.isLoading).toBeFalse();
-    expect(component.error).toBeNull();
+  it('debe inicializar el formulario con valores por defecto', () => {
+    expect(component.loanForm.get('status')?.value).toBe('ACTIVE');
+    expect(component.loanForm.get('loanDate')?.value).toBeTruthy();
+    expect(component.loanForm.get('returnDate')?.value).toBeTruthy();
   });
 
-  it('debe mostrar error si préstamo no existe (null)', () => {
-    loansService.getLoanById.and.returnValue(of(null));
-
-    fixture.detectChanges();
-
-    expect(component.error).toContain('No se encontró el préstamo');
-    expect(component.loan).toBeNull();
+  it('debe marcar formulario como inválido si faltan campos requeridos', () => {
+    component.loanForm.patchValue({ bookId: null, userId: null });
+    expect(component.loanForm.invalid).toBe(true);
   });
 
-  it('debe mostrar error si falla la carga', () => {
-    loansService.getLoanById.and.returnValue(throwError(() => new Error('Network error')));
+  it('debe crear préstamo y navegar al detalle', () => {
+    const createdLoan = { id: 4, bookId: 101, userId: 201, loanDate: '2026-10-15', returnDate: '2026-10-29', status: 'ACTIVE' };
+    loansService.createLoan.mockReturnValue(of(createdLoan));
 
-    fixture.detectChanges();
+    component.loanForm.patchValue({
+      bookId: 101,
+      userId: 201,
+      loanDate: '2026-10-15',
+      returnDate: '2026-10-29',
+      status: 'ACTIVE'
+    });
 
-    expect(component.error).toContain('Error al cargar el préstamo');
+    component.onSubmit();
+
+    expect(loansService.createLoan).toHaveBeenCalled();
+    expect(component.isSubmitting).toBe(false);
+    expect(component.success).toBe(true);
   });
 
-  it('debe formatear fecha correctamente', () => {
-    expect(component.formatDate('2026-10-15')).toBe('15/10/2026');
-    expect(component.formatDate('')).toBe('-');
+  it('debe mostrar error si falla la creación', () => {
+    loansService.createLoan.mockReturnValue(throwError(() => new Error('Server error')));
+
+    component.loanForm.patchValue({
+      bookId: 101,
+      userId: 201,
+      loanDate: '2026-10-15',
+      returnDate: '2026-10-29',
+      status: 'ACTIVE'
+    });
+
+    component.onSubmit();
+
+    expect(component.error).toContain('Error al crear el préstamo');
+    expect(component.isSubmitting).toBe(false);
   });
 
-  it('debe obtener etiqueta de estado correctamente', () => {
-    expect(component.getStatusLabel('ACTIVE')).toBe('Activo');
-    expect(component.getStatusLabel('RETURNED')).toBe('Devuelto');
-    expect(component.getStatusLabel('OVERDUE')).toBe('Vencido');
-  });
-
-  it('debe obtener clase CSS de estado correctamente', () => {
-    expect(component.getStatusClass('ACTIVE')).toBe('status-active');
-    expect(component.getStatusClass('RETURNED')).toBe('status-returned');
-    expect(component.getStatusClass('OVERDUE')).toBe('status-overdue');
-  });
-
-  it('debe obtener icono de estado correctamente', () => {
-    expect(component.getStatusIcon('ACTIVE')).toBe('📚');
-    expect(component.getStatusIcon('RETURNED')).toBe('✅');
-    expect(component.getStatusIcon('OVERDUE')).toBe('⚠️');
+  it('debe navegar atrás al hacer clic en cancelar', () => {
+    component.goBack();
+    expect(router.navigate).toHaveBeenCalledWith(['/loans']);
   });
 });

@@ -8,7 +8,7 @@ import { ActivatedRoute } from '@angular/router';
 describe('LoanListPage', () => {
   let component: LoanListPage;
   let fixture: ComponentFixture<LoanListPage>;
-  let loansService: jasmine.SpyObj<LoansService>;
+  let loansService: jest.Mocked<LoansService>;
 
   const mockLoans: Loan[] = [
     { id: 1, bookId: 101, userId: 201, loanDate: '2026-10-01', returnDate: '2026-10-15', status: 'ACTIVE' },
@@ -17,7 +17,10 @@ describe('LoanListPage', () => {
   ];
 
   beforeEach(async () => {
-    loansService = jasmine.createSpyObj('LoansService', ['getAllLoans', 'deleteLoan']);
+    loansService = { getAllLoans: jest.fn(), deleteLoan: jest.fn() } as jest.Mocked<LoansService>;
+
+    // Mock window.confirm
+    global.confirm = jest.fn(() => true);
 
     await TestBed.configureTestingModule({
       imports: [LoanListPage],
@@ -31,33 +34,37 @@ describe('LoanListPage', () => {
     component = fixture.componentInstance;
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('debe crearse correctamente', () => {
     expect(component).toBeTruthy();
   });
 
   it('debe cargar préstamos al inicializar', () => {
-    loansService.getAllLoans.and.returnValue(of(mockLoans));
+    loansService.getAllLoans.mockReturnValue(of(mockLoans));
 
     fixture.detectChanges();
 
     expect(loansService.getAllLoans).toHaveBeenCalled();
     expect(component.loans.length).toBe(3);
-    expect(component.isLoading).toBeFalse();
+    expect(component.isLoading).toBe(false);
     expect(component.error).toBeNull();
   });
 
   it('debe mostrar error cuando falla la carga', () => {
-    loansService.getAllLoans.and.returnValue(throwError(() => new Error('Failed to fetch')));
+    loansService.getAllLoans.mockReturnValue(throwError(() => new Error('Failed to fetch')));
 
     fixture.detectChanges();
 
     expect(component.error).toContain('Error al cargar los préstamos');
-    expect(component.isLoading).toBeFalse();
+    expect(component.isLoading).toBe(false);
   });
 
   it('debe eliminar préstamo y actualizar lista', () => {
-    loansService.getAllLoans.and.returnValue(of(mockLoans));
-    loansService.deleteLoan.and.returnValue(of(void 0));
+    loansService.getAllLoans.mockReturnValue(of(mockLoans));
+    loansService.deleteLoan.mockReturnValue(of(void 0));
 
     fixture.detectChanges();
 
@@ -69,8 +76,8 @@ describe('LoanListPage', () => {
   });
 
   it('debe mostrar error al fallar eliminación', () => {
-    loansService.getAllLoans.and.returnValue(of(mockLoans));
-    loansService.deleteLoan.and.returnValue(throwError(() => new Error('Delete failed')));
+    loansService.getAllLoans.mockReturnValue(of(mockLoans));
+    loansService.deleteLoan.mockReturnValue(throwError(() => new Error('Delete failed')));
 
     fixture.detectChanges();
 

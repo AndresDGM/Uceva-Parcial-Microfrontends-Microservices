@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { of, throwError, firstValueFrom } from 'rxjs';
+import { firstValueFrom, of, throwError } from 'rxjs';
 import { GetLoanByIdUseCase } from './get-loan-by-id.usecase';
-import { LoanRepository } from '../../domain/repositories/loan.repository';
-import { Loan } from '../../domain/models/loan.model';
+import { LoanRepository } from '../../../domain/repositories/loan.repository';
+import { LOAN_REPOSITORY_TOKEN } from '../../../domain/repositories/loan-repository.token';
+import { Loan } from '../../../domain/models/loan.model';
 
 describe('GetLoanByIdUseCase', () => {
   let useCase: GetLoanByIdUseCase;
-  let loanRepository: jasmine.SpyObj<LoanRepository>;
 
   const loan: Loan = {
     id: 1,
@@ -17,35 +17,36 @@ describe('GetLoanByIdUseCase', () => {
     status: 'ACTIVE'
   };
 
-  beforeEach(() => {
-    loanRepository = jasmine.createSpyObj('LoanRepository', ['create', 'getAll', 'getById']);
+  const LoanRepositoryMock: jest.Mocked<LoanRepository> = { create: jest.fn(), getAll: jest.fn(), getById: jest.fn() };
 
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       providers: [
         GetLoanByIdUseCase,
-        { provide: LoanRepository, useValue: loanRepository }
+        { provide: LOAN_REPOSITORY_TOKEN, useValue: LoanRepositoryMock }
       ]
-    });
+    }).compileComponents();
 
     useCase = TestBed.inject(GetLoanByIdUseCase);
   });
 
   it('debe crearse correctamente', () => {
-    expect(useCase).toBeTruthy();
+    expect(useCase).toBeInstanceOf(GetLoanByIdUseCase);
   });
 
   it('debe obtener un préstamo por su ID', async () => {
-    loanRepository.getById.and.returnValue(of(loan));
+    LoanRepositoryMock.getById.mockReturnValue(of(loan));
 
     const result = await firstValueFrom(useCase.execute(1));
 
-    expect(loanRepository.getById).toHaveBeenCalledWith(1);
+    expect(LoanRepositoryMock.getById).toHaveBeenCalledTimes(1);
+    expect(LoanRepositoryMock.getById).toHaveBeenCalledWith(1);
     expect(result).toEqual(loan);
     expect(result?.id).toBe(1);
   });
 
   it('debe retornar null cuando el préstamo no existe', async () => {
-    loanRepository.getById.and.returnValue(of(null));
+    LoanRepositoryMock.getById.mockReturnValue(of(null));
 
     const result = await firstValueFrom(useCase.execute(999));
 
@@ -53,8 +54,13 @@ describe('GetLoanByIdUseCase', () => {
   });
 
   it('debe propagar el error cuando el repositorio falla', async () => {
-    loanRepository.getById.and.returnValue(throwError(() => new Error('Failed to fetch loan')));
+    const errorMessage = 'Failed to fetch loan';
+    LoanRepositoryMock.getById.mockReturnValue(throwError(() => new Error(errorMessage)));
 
-    await expect(firstValueFrom(useCase.execute(1))).rejects.toThrow('Failed to fetch loan');
+    const result = useCase.execute(1);
+    await expect(firstValueFrom(result)).rejects.toThrow(errorMessage);
+
+    expect(LoanRepositoryMock.getById).toHaveBeenCalledTimes(1);
+    expect(LoanRepositoryMock.getById).toHaveBeenCalledWith(1);
   });
 });
