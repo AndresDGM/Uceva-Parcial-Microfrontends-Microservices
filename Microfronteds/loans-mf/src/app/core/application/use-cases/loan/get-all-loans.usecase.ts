@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Loan } from '../../domain/models/loan.model';
-import { LoanRepository } from '../../domain/repositories/loan.repository';
+import { Loan } from '../../../domain/models/loan.model';
+import { LoanRepository } from '../../../domain/repositories/loan.repository';
+import { LOAN_REPOSITORY_TOKEN } from '../../../domain/repositories/loan-repository.token';
 
 /**
  * Caso de uso para obtener el listado completo de loans.
@@ -41,7 +42,7 @@ export class GetAllLoansUseCase {
    * @remarks
    * La implementación concreta se define en la capa de infraestructura.
    */
-  private loanRepository = inject(LoanRepository);
+  private loanRepository = inject(LOAN_REPOSITORY_TOKEN);
 
   /**
    * Ejecuta el caso de uso.

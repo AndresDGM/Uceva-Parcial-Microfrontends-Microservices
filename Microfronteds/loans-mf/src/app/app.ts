@@ -28,9 +28,6 @@ export class App {
       icon: 'journal-bookmark',
       size: 2
     },
-    navLinks: [
-      { label: 'Préstamos', path: '/loans' },
-      { label: 'Nuevo Préstamo', path: '/loans/create' }
-    ]
+    navLinks: []
   };
 }

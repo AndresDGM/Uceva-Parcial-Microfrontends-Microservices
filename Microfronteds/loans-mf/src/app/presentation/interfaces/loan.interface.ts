@@ -1,4 +1,4 @@
-import { Loan } from '../../../core/domain/models/loan.model';
+import { Loan } from '../../core/domain/models/loan.model';
 import { LoanStatus } from './loan-status.interface';
 
 export interface LoanFormData {

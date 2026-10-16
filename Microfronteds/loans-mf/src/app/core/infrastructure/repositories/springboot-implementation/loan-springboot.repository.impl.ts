@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Loan } from '../../domain/models/loan.model';
-import { LoanRepository } from '../../domain/repositories/loan.repository';
-import { LoanApiService } from '../services/loan-api.service';
+import { Loan } from '../../../domain/models/loan.model';
+import { LoanRepository } from '../../../domain/repositories/loan.repository';
+import { LoanApiService } from '../../services/loan-api.service';
 
 /**
  * Implementación del repositorio de préstamos sobre el backend Spring Boot.
@@ -15,7 +15,7 @@ import { LoanApiService } from '../services/loan-api.service';
  * entre la fuente remota y el dominio.
  */
 @Injectable()
-export class LoanSpringbootRepositoryImpl extends LoanRepository {
+export class LoanSpringbootRepositoryImpl implements LoanRepository {
 
   /** Servicio API inyectado */
   private loanApiService = inject(LoanApiService);
@@ -26,7 +26,7 @@ export class LoanSpringbootRepositoryImpl extends LoanRepository {
    * @param loan - Préstamo a crear (sin ID)
    * @returns Observable que emite el préstamo creado
    */
-  override create(loan: Omit<Loan, 'id'>): Observable<Loan> {
+  create(loan: Omit<Loan, 'id'>): Observable<Loan> {
     return this.loanApiService.create(loan);
   }
 
@@ -35,7 +35,7 @@ export class LoanSpringbootRepositoryImpl extends LoanRepository {
    *
    * @returns Observable que emite el listado de préstamos
    */
-  override getAll(): Observable<Loan[]> {
+  getAll(): Observable<Loan[]> {
     return this.loanApiService.getAll();
   }
 
@@ -45,7 +45,7 @@ export class LoanSpringbootRepositoryImpl extends LoanRepository {
    * @param id - Identificador único del préstamo
    * @returns Observable que emite el préstamo encontrado o null
    */
-  override getById(id: number): Observable<Loan | null> {
+  getById(id: number): Observable<Loan | null> {
     return this.loanApiService.getById(id);
   }
 }

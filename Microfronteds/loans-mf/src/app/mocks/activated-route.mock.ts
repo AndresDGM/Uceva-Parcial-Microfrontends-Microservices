@@ -1,4 +1,4 @@
-import { ConvertToParamMap, ActivatedRoute } from '@angular/router';
+import { convertToParamMap, ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { Loan } from '../core/domain/models/loan.model';
 
@@ -15,7 +15,7 @@ import { Loan } from '../core/domain/models/loan.model';
 export function createActivatedRouteMock(id: string | null): ActivatedRoute {
   return {
     snapshot: {
-      paramMap: new ConvertToParamMap(id ? { id } : {})
+      paramMap: convertToParamMap(id ? { id } : {})
     }
   } as unknown as ActivatedRoute;
 }

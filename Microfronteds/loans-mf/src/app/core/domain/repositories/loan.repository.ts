@@ -27,7 +27,7 @@ import { Loan } from '../models/loan.model';
  *
  * @see Loan
  */
-export abstract class LoanRepository {
+export interface LoanRepository {
 
   /**
    * Crea un nuevo préstamo.
@@ -40,7 +40,7 @@ export abstract class LoanRepository {
    * - No transforma entidades de presentación.
    * - Mantiene el dominio independiente de la infraestructura.
    */
-  abstract create(loan: Omit<Loan, 'id'>): Observable<Loan>;
+  create(loan: Omit<Loan, 'id'>): Observable<Loan>;
 
   /**
    * Obtiene el listado completo de préstamos.
@@ -52,7 +52,7 @@ export abstract class LoanRepository {
    * - No transforma entidades de presentación.
    * - Mantiene el dominio independiente de la infraestructura.
    */
-  abstract getAll(): Observable<Loan[]>;
+  getAll(): Observable<Loan[]>;
 
   /**
    * Obtiene un préstamo por su ID.
@@ -65,5 +65,5 @@ export abstract class LoanRepository {
    * - No transforma entidades de presentación.
    * - Mantiene el dominio independiente de la infraestructura.
    */
-  abstract getById(id: number): Observable<Loan | null>;
+  getById(id: number): Observable<Loan | null>;
 }

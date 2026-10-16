@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { LoanListPage } from './presentation/loans/pages/loan-list.page';
-import { LoanCreatePage } from './presentation/loans/pages/loan-create.page';
-import { LoanDetailPage } from './presentation/loans/pages/loan-detail.page';
+import { LoanListPage } from './presentation/pages/loans/loan-list.page';
+import { LoanCreatePage } from './presentation/pages/loans/loan-create.page';
+import { LoanDetailPage } from './presentation/pages/loans/loan-detail.page';
 
 /**
  * Definición de las rutas principales de la aplicación.

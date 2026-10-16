@@ -5,6 +5,7 @@ import { routes } from './app.routes';
 
 // Domain
 import { LoanRepository } from './core/domain/repositories/loan.repository';
+import { LOAN_REPOSITORY_TOKEN } from './core/domain/repositories/loan-repository.token';
 
 // Infrastructure
 import { LoanSpringbootRepositoryImpl } from './core/infrastructure/repositories/springboot-implementation/loan-springboot.repository.impl';
@@ -28,7 +29,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(),
-    { provide: LoanRepository, useClass: LoanSpringbootRepositoryImpl },
+    { provide: LOAN_REPOSITORY_TOKEN, useClass: LoanSpringbootRepositoryImpl },
     CreateLoanUseCase,
     GetAllLoansUseCase,
     GetLoanByIdUseCase
